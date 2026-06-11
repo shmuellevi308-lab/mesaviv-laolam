@@ -1,0 +1,2155 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="מסביב לעולם">
+<meta name="application-name" content="מסביב לעולם">
+<meta name="theme-color" content="#0a1628">
+<meta name="description" content="משחק מדינות, דגלים, בירות, מטבעות, שפות ואתרים">
+<link rel="manifest" id="manifestLink">
+<title>🌍 מסביב לעולם 4.0</title>
+<script>
+// Inject PWA manifest dynamically
+const manifest = {
+  name: "מסביב לעולם",
+  short_name: "מסביב לעולם",
+  description: "משחק מדינות, דגלים, בירות, מטבעות, שפות ואתרים",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#0a1628",
+  theme_color: "#0a1628",
+  orientation: "portrait",
+  icons: [
+    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a1628'/><text y='.9em' font-size='80' x='10'>🌍</text></svg>", sizes: "192x192", type: "image/svg+xml" },
+    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a1628'/><text y='.9em' font-size='80' x='10'>🌍</text></svg>", sizes: "512x512", type: "image/svg+xml" }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+const url = URL.createObjectURL(blob);
+document.getElementById('manifestLink').href = url;
+</script>
+<style>
+/* offline-friendly: system fonts only */
+
+:root{
+  --bg1:#0a1628;--bg2:#0f2042;--bg3:#061020;
+  --card:#ffffff0d;--card-border:#ffffff18;
+  --main:#3b9eff;--main2:#1a6ee0;
+  --soft:#ffffff08;--text:#e8f4ff;--text2:#8ab8e8;
+  --good:#00d68f;--bad:#ff4757;--gold:#ffc107;--purple:#9c6fe4;
+  --glow-main:rgba(59,158,255,.35);
+  --glow-good:rgba(0,214,143,.35);
+  --glow-bad:rgba(255,71,87,.35);
+  --glow-gold:rgba(255,193,7,.35);
+}
+body.theme-sunset{--bg1:#1a0a00;--bg2:#2e1000;--bg3:#0d0500;--main:#ff7e5f;--main2:#c04a2a;--text:#fff3e0;--text2:#ffb085;--glow-main:rgba(255,126,95,.35)}
+body.theme-forest{--bg1:#051a08;--bg2:#0a3010;--bg3:#020d04;--main:#4caf50;--main2:#2e7d32;--text:#e8f5e9;--text2:#81c784;--glow-main:rgba(76,175,80,.35)}
+body.theme-purple{--bg1:#100520;--bg2:#1a0835;--bg3:#080212;--main:#9c27b0;--main2:#6a1b9a;--text:#f3e5f5;--text2:#ce93d8;--glow-main:rgba(156,39,176,.35)}
+body.theme-dark{--bg1:#000;--bg2:#111;--bg3:#000;--card:#ffffff0a;--main:#08a7ff;--main2:#0570cc;--text:#eee;--text2:#aaa;--glow-main:rgba(8,167,255,.35)}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Heebo','Segoe UI',Arial,sans-serif;
+  background: radial-gradient(ellipse at 20% 10%, #1a3a6e 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 90%, #0a2040 0%, transparent 50%),
+              linear-gradient(135deg, var(--bg1), var(--bg2) 50%, var(--bg3));
+  color:var(--text);
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:12px;
+  overflow-x:hidden;
+}
+
+/* Animated background stars */
+body::before{
+  content:'';position:fixed;top:0;left:0;right:0;bottom:0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 50%, rgba(255,255,255,.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,.2) 0%, transparent 100%);
+  pointer-events:none;z-index:0;
+}
+
+.app{
+  width:100%;max-width:1100px;
+  background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid var(--card-border);
+  border-radius:28px;
+  box-shadow:0 25px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05), inset 0 1px 0 rgba(255,255,255,.1);
+  padding:24px;
+  text-align:center;
+  max-height:97vh;overflow-y:auto;overflow-x:hidden;
+  position:relative;z-index:1;
+  backdrop-filter:blur(20px);
+}
+.app::-webkit-scrollbar{width:5px}
+.app::-webkit-scrollbar-track{background:transparent}
+.app::-webkit-scrollbar-thumb{background:var(--main);border-radius:10px}
+
+/* HERO / LOGO */
+.hero{
+  background:linear-gradient(135deg, rgba(59,158,255,.12), rgba(156,111,228,.08));
+  border:1px solid rgba(59,158,255,.25);
+  border-radius:24px;padding:28px 20px;margin-bottom:20px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-50%;left:-50%;right:-50%;bottom:-50%;
+  background:conic-gradient(from 0deg at 50% 50%, transparent 0deg, rgba(59,158,255,.05) 60deg, transparent 120deg);
+  animation:heroSpin 8s linear infinite;
+}
+@keyframes heroSpin{to{transform:rotate(360deg)}}
+
+.bigLogo{
+  font-size:52px;font-weight:900;
+  background:linear-gradient(135deg, var(--main), var(--purple), var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  filter:drop-shadow(0 0 20px var(--glow-main));
+  position:relative;z-index:1;
+}
+.subtitle{font-size:16px;color:var(--text2);margin:8px 0 16px;position:relative;z-index:1}
+
+/* PILLS */
+.pill{
+  display:inline-block;
+  background:linear-gradient(135deg, rgba(59,158,255,.2), rgba(59,158,255,.08));
+  border:1px solid rgba(59,158,255,.3);
+  padding:5px 14px;border-radius:20px;margin:3px;
+  font-size:13px;font-weight:600;color:var(--main);
+  backdrop-filter:blur(10px);
+}
+
+/* BUTTONS */
+button{
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:14px;padding:11px 18px;
+  font-size:15px;font-weight:700;margin:5px;cursor:pointer;
+  background:linear-gradient(135deg, var(--main), var(--main2));
+  color:#fff;
+  transition:all .2s ease;
+  box-shadow:0 4px 15px var(--glow-main);
+  font-family:'Heebo',Arial,sans-serif;
+  position:relative;overflow:hidden;
+}
+button::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);transition:.4s}
+button:hover::after{left:100%}
+button:hover{transform:translateY(-2px);filter:brightness(1.12);box-shadow:0 8px 25px var(--glow-main)}
+button:active{transform:translateY(0);filter:brightness(.95)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+
+.secondary{background:linear-gradient(135deg,#2a3a50,#1a2535);box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.secondary:hover{box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.green{background:linear-gradient(135deg,#00d68f,#00a06a);box-shadow:0 4px 15px var(--glow-good)}
+.green:hover{box-shadow:0 8px 25px var(--glow-good)}
+.bad{background:linear-gradient(135deg,#ff4757,#c0392b);box-shadow:0 4px 15px var(--glow-bad)}
+.bad:hover{box-shadow:0 8px 25px var(--glow-bad)}
+.gold{background:linear-gradient(135deg,#ffc107,#e6a500);color:#111;box-shadow:0 4px 15px var(--glow-gold)}
+.gold:hover{box-shadow:0 8px 25px var(--glow-gold)}
+.purple{background:linear-gradient(135deg,#9c6fe4,#6a3fb5);box-shadow:0 4px 15px rgba(156,111,228,.35)}
+.purple:hover{box-shadow:0 8px 25px rgba(156,111,228,.5)}
+
+/* INPUTS */
+input,select{
+  width:92%;max-width:360px;padding:12px 16px;
+  border:1px solid rgba(59,158,255,.3);border-radius:14px;
+  font-size:16px;text-align:center;margin:7px;
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  backdrop-filter:blur(10px);
+  transition:.2s;
+  font-family:'Heebo',Arial,sans-serif;
+}
+input:focus,select:focus{outline:none;border-color:var(--main);box-shadow:0 0 0 3px var(--glow-main);background:rgba(255,255,255,.1)}
+input::placeholder{color:var(--text2)}
+select option{background:#1a2535;color:var(--text)}
+
+.hidden{display:none!important}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+
+/* CARDS */
+.card{
+  background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:16px;
+  transition:all .25s ease;
+  backdrop-filter:blur(10px);
+}
+.card:hover{border-color:rgba(59,158,255,.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.game-card{min-height:170px;position:relative;cursor:pointer}
+.emoji{font-size:40px;margin-bottom:8px}
+
+/* PANEL */
+.panel{
+  background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:16px;margin:12px 0;
+  text-align:right;line-height:1.8;color:var(--text2);
+  backdrop-filter:blur(10px);
+}
+.panel b{color:var(--text)}
+
+/* TOPBAR */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:18px;padding:12px 16px;margin-bottom:16px;
+  font-weight:700;font-size:14px;
+  backdrop-filter:blur(10px);
+}
+.timer{
+  font-size:24px;color:var(--bad);
+  text-shadow:0 0 10px var(--glow-bad);
+  font-weight:900;
+}
+.timer.warning{animation:timerPulse .5s infinite alternate}
+@keyframes timerPulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+
+/* QUESTION */
+.question{
+  font-size:22px;font-weight:800;margin:16px 0;
+  color:var(--text);
+  text-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+
+/* ANSWERS */
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin:14px 0}
+.answer{
+  background:linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  color:var(--text);
+  border:1.5px solid rgba(255,255,255,.15);
+  min-height:90px;
+  border-radius:14px;
+  transition:all .2s ease;
+  font-size:14px;font-weight:600;
+  backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:6px;
+}
+.answer:hover:not(:disabled){
+  background:linear-gradient(135deg, rgba(59,158,255,.2), rgba(59,158,255,.08));
+  border-color:var(--main);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px var(--glow-main);
+}
+.answer.correct{
+  background:linear-gradient(135deg, rgba(0,214,143,.3), rgba(0,214,143,.12))!important;
+  border-color:var(--good)!important;
+  color:var(--good)!important;
+  box-shadow:0 0 25px var(--glow-good)!important;
+  animation:correctPop .4s ease;
+}
+.answer.wrong{
+  background:linear-gradient(135deg, rgba(255,71,87,.3), rgba(255,71,87,.12))!important;
+  border-color:var(--bad)!important;
+  color:var(--bad)!important;
+  box-shadow:0 0 20px var(--glow-bad)!important;
+}
+@keyframes correctPop{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+
+/* PROGRESS BAR */
+.progress{height:8px;border-radius:20px;background:rgba(255,255,255,.1);overflow:hidden;margin:10px 0;border:1px solid rgba(255,255,255,.05)}
+.bar{height:100%;background:linear-gradient(90deg, var(--good), var(--gold), var(--main));width:0%;transition:width .5s ease;border-radius:20px;box-shadow:0 0 8px rgba(0,214,143,.5)}
+
+/* TIMER BAR */
+.timerBar{height:5px;border-radius:10px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:12px;border:1px solid rgba(255,255,255,.05)}
+.timerBarInner{height:100%;background:linear-gradient(90deg,var(--good),var(--gold),var(--bad));width:100%;transition:width .9s linear;border-radius:10px;box-shadow:0 0 6px rgba(255,193,7,.4)}
+
+/* STATS ROW */
+.statsRow{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.stat{
+  background:linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;padding:14px 10px;
+  font-weight:700;color:var(--text2);
+  transition:.2s;
+}
+.stat:hover{border-color:rgba(59,158,255,.2)}
+.big{font-size:28px;color:var(--main);display:block;font-weight:900;text-shadow:0 0 15px var(--glow-main)}
+
+/* MESSAGE */
+.message{
+  min-height:36px;font-size:18px;font-weight:700;margin:10px;
+  text-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+
+/* FLAGS */
+.flag-img{
+  width:200px;max-width:80%;height:125px;object-fit:contain;
+  border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.1);
+  background:rgba(255,255,255,.05);margin:6px auto;display:block;
+  border:1px solid rgba(255,255,255,.15);
+  transition:.3s;
+}
+.flag-option{width:110px;height:68px;object-fit:contain;display:block;margin:6px auto;border-radius:8px;background:rgba(255,255,255,.06)}
+
+/* WORLD MAP */
+.world{
+  position:relative;min-height:180px;
+  background:linear-gradient(135deg, rgba(10,30,60,.8), rgba(5,20,40,.9));
+  border:1px solid rgba(59,158,255,.25);
+  border-radius:18px;overflow:hidden;margin:10px 0;
+  box-shadow:0 6px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(59,158,255,.2);
+}
+.real-map{min-height:auto}
+.mapSvg{display:block;width:100%;height:auto;min-height:180px}
+.land{fill:#1e3a5f;stroke:rgba(59,158,255,.3);stroke-width:2.5;transition:.5s}
+.land.partial{fill:#2d5a3d}
+.land.done{fill:#4a7c59;filter:drop-shadow(0 0 6px rgba(0,214,143,.4))}
+.islandLand{fill:#1e3a5f}
+.mapCounter{
+  position:absolute;
+  background:rgba(10,20,40,.85);
+  border:1px solid rgba(59,158,255,.3);
+  border-radius:14px;padding:5px 10px;
+  font-weight:800;font-size:13px;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+  color:var(--main);
+  backdrop-filter:blur(10px);
+}
+.euCounter{left:46%;top:17%}.asiaCounter{left:70%;top:22%}.afCounter{left:52%;top:54%}.amCounter{left:16%;top:42%}.ocCounter{left:79%;top:76%}
+
+/* PINS */
+.pin{
+  position:absolute;width:10px;height:10px;
+  background:radial-gradient(circle, #ff6b6b, #ff2d55);
+  border-radius:50%;
+  box-shadow:0 0 0 2px rgba(255,255,255,.5), 0 0 12px rgba(255,45,85,.6);
+  z-index:4;
+  animation:pinPulse 2s infinite;
+}
+@keyframes pinPulse{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.5),0 0 12px rgba(255,45,85,.6)}50%{box-shadow:0 0 0 4px rgba(255,255,255,.3),0 0 20px rgba(255,45,85,.8)}}
+
+/* PLAYER CARDS */
+.player-card{cursor:pointer;text-align:center}
+.player-card:hover{border-color:rgba(255,193,7,.4);box-shadow:0 8px 30px rgba(255,193,7,.15)}
+.player-card h3{color:var(--text);font-size:18px;margin-bottom:8px}
+.player-card p{color:var(--text2);font-size:14px;margin:4px 0}
+
+/* AVATAR */
+.avatar{
+  font-size:40px;
+  border:2px solid rgba(59,158,255,.4);
+  background:rgba(255,255,255,.06);
+  border-radius:50%;width:70px;height:70px;
+  display:inline-flex;align-items:center;justify-content:center;
+  margin:5px;
+  box-shadow:0 5px 20px rgba(0,0,0,.3), 0 0 0 1px rgba(59,158,255,.2);
+  backdrop-filter:blur(10px);
+}
+.avatarChoice{
+  font-size:32px;border:2px solid rgba(255,255,255,.15);
+  border-radius:16px;background:rgba(255,255,255,.06);color:#fff;
+  min-width:60px;transition:.2s;
+}
+.avatarChoice:hover{border-color:rgba(59,158,255,.4);background:rgba(59,158,255,.1)}
+.avatarChoice.selected{background:linear-gradient(135deg,rgba(255,193,7,.3),rgba(255,193,7,.1));border-color:var(--gold);box-shadow:0 0 15px var(--glow-gold)}
+
+/* SITE IMAGES */
+.site-placeholder{
+  width:300px;max-width:90%;height:175px;
+  border-radius:16px;margin:10px auto;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg, var(--main2), var(--purple));
+  color:white;font-size:32px;font-weight:900;
+  box-shadow:0 8px 25px rgba(0,0,0,.4);
+  border:1px solid rgba(255,255,255,.15);
+}
+.site-img{width:300px;max-width:90%;height:175px;object-fit:cover;border-radius:16px;margin:10px auto;display:block;border:1px solid rgba(255,255,255,.15);box-shadow:0 8px 25px rgba(0,0,0,.4)}
+
+/* CONFETTI / TROPHY */
+.confetti{font-size:50px;animation:bounce .7s infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.trophy-pop{font-size:80px;animation:trophyPop .9s ease-in-out infinite alternate;text-align:center}
+@keyframes trophyPop{0%{transform:scale(.88) rotate(-5deg)}100%{transform:scale(1.14) rotate(5deg)}}
+
+/* FEATURES */
+.feature{
+  display:inline-block;border-radius:12px;padding:5px 10px;margin:3px;
+  background:rgba(255,255,255,.06);color:var(--text2);font-weight:700;font-size:13px;
+  border:1px solid rgba(255,255,255,.1);
+  transition:.2s;
+}
+.feature.done{background:linear-gradient(135deg,rgba(0,214,143,.2),rgba(0,214,143,.08));border-color:rgba(0,214,143,.4);color:var(--good)}
+.feature.flag.done{background:linear-gradient(135deg,rgba(255,193,7,.2),rgba(255,193,7,.08));border-color:rgba(255,193,7,.4);color:var(--gold)}
+
+/* LEADERBOARD */
+.leaderRow{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.07);padding:10px;
+  transition:.2s;
+}
+.leaderRow:hover{background:rgba(255,255,255,.04)}
+
+/* SHOP */
+.shopTop{
+  text-align:center;
+  border:1px solid rgba(255,193,7,.25)!important;
+  background:linear-gradient(135deg, rgba(255,193,7,.08), rgba(255,193,7,.03))!important;
+}
+.shopMsg{font-size:20px;font-weight:900;min-height:32px;margin:10px}
+.shopMsg.good{color:var(--good);text-shadow:0 0 10px var(--glow-good)}
+.shopMsg.bad{color:var(--bad);text-shadow:0 0 10px var(--glow-bad)}
+.shopAction{border:1px solid rgba(255,193,7,.2)!important;background:linear-gradient(135deg,rgba(255,193,7,.06),rgba(255,193,7,.02))!important}
+
+/* PASSPORT */
+.passportCard{
+  background:linear-gradient(135deg,rgba(139,90,43,.15),rgba(90,60,20,.1));
+  border:1px solid rgba(139,90,43,.35)!important;
+  color:var(--text);
+}
+.stamp{position:relative;overflow:hidden}
+.stamp:after{
+  content:"הוחתם";position:absolute;top:12px;left:-28px;
+  transform:rotate(-28deg);border:3px solid rgba(184,51,47,.7);
+  color:rgba(184,51,47,.85);font-weight:900;padding:4px 24px;
+  border-radius:8px;background:rgba(255,255,255,.08);
+}
+.passport-img{width:100%;height:130px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.15)}
+
+/* SURPRISES */
+#surpriseBox{
+  background:linear-gradient(135deg, rgba(255,193,7,.15), rgba(255,193,7,.05));
+  border:1px solid rgba(255,193,7,.3);
+  border-radius:16px;padding:14px;
+  color:var(--gold);font-weight:700;font-size:17px;
+  text-shadow:0 0 10px var(--glow-gold);
+  animation:surprisePop .5s ease;
+}
+@keyframes surprisePop{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+
+/* DANGER */
+.danger{color:var(--bad);font-weight:bold;text-shadow:0 0 8px var(--glow-bad)}
+
+/* HERO STATS */
+.hero-stat{font-size:13px;color:var(--text2)}
+
+/* DAILY MISSION */
+.dailyMission{
+  border:1px dashed rgba(255,193,7,.35)!important;
+  background:linear-gradient(135deg, rgba(255,193,7,.06), rgba(255,193,7,.02))!important;
+}
+
+/* LOCKED */
+.locked{opacity:.55;pointer-events:none}
+.locked button{pointer-events:all}
+
+/* LOCK OVERLAY */
+@keyframes overlayIn{from{opacity:0}to{opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lockBox{
+  background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));
+  border:1px solid rgba(255,71,87,.3);
+  border-radius:28px;padding:36px 28px;
+  max-width:340px;width:90%;text-align:center;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07),inset 0 1px 0 rgba(255,255,255,.1);
+  animation:overlayIn .35s ease;
+}
+
+@keyframes missionPulse{from{filter:brightness(1);box-shadow:0 4px 15px var(--glow-gold)}to{filter:brightness(1.2);box-shadow:0 4px 25px var(--glow-gold),0 0 40px var(--glow-gold)}}
+
+/* SCROLL */
+.list-view{display:block}
+.list-view .game-card{
+  display:flex;align-items:center;justify-content:space-between;
+  text-align:right;min-height:auto;margin:10px 0;
+}
+.list-view .emoji{font-size:32px}
+
+/* SMALL TEXT */
+.small{font-size:13px;color:var(--text2)}
+
+/* ACHIEVEMENT */
+.secretBox{font-size:40px;filter:grayscale(1);opacity:.5}
+
+/* ERROR */
+#errorBox{color:var(--bad);font-weight:700;min-height:20px;margin:5px 0}
+
+/* EXPERT INPUT */
+#expertInput{
+  color:var(--text);
+}
+
+/* SCREEN TRANSITION */
+section{animation:screenIn .3s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CONFETTI PARTICLES */
+.particle{
+  position:fixed;width:8px;height:8px;border-radius:50%;
+  pointer-events:none;z-index:9999;animation:fall linear forwards;
+}
+@keyframes fall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+  100%{transform:translateY(110vh) rotate(720deg);opacity:0}
+}
+
+/* PROGRESS QUESTION */
+.questionProgress{
+  display:flex;gap:4px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;
+}
+.qDot{
+  width:10px;height:10px;border-radius:50%;
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);
+  transition:.3s;
+}
+.qDot.done-ok{background:var(--good);box-shadow:0 0 6px var(--glow-good)}
+.qDot.done-bad{background:var(--bad);box-shadow:0 0 6px var(--glow-bad)}
+.qDot.current{background:var(--main);box-shadow:0 0 8px var(--glow-main);animation:dotPulse .8s infinite alternate}
+@keyframes dotPulse{from{transform:scale(1)}to{transform:scale(1.4)}}
+
+/* XP TOAST */
+.xpToast{
+  position:fixed;top:20px;right:20px;z-index:9998;
+  background:linear-gradient(135deg,rgba(0,214,143,.9),rgba(0,150,100,.9));
+  color:#fff;font-weight:800;font-size:18px;
+  padding:12px 20px;border-radius:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);
+  animation:toastIn .4s ease,toastOut .4s ease 1.6s forwards;
+  backdrop-filter:blur(10px);
+}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(120%)}}
+
+/* FILE INPUT */
+.fileInput{max-width:400px;background:rgba(255,255,255,.06);color:var(--text)}
+
+/* H tags */
+h1{font-size:28px;font-weight:900;color:var(--text);margin-bottom:10px}
+h2{font-size:22px;font-weight:800;color:var(--text);margin-bottom:14px}
+h3{font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px}
+
+/* SEPARATOR */
+.sep{height:1px;background:linear-gradient(90deg,transparent,rgba(59,158,255,.2),transparent);margin:16px 0}
+
+/* COLLECTION FEATURES */
+.countryCard{text-align:center}
+
+/* END SCREEN */
+#endScreen .panel{text-align:center}
+</style>
+</head>
+<body>
+<!-- PWA Install Banner -->
+<div id="installBanner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9998;background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(59,158,255,.3);border-radius:18px;padding:14px 20px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5);max-width:320px;width:90%;font-family:Arial,sans-serif">
+  <div style="font-size:28px;margin-bottom:6px">📲</div>
+  <div style="color:#e8f4ff;font-weight:700;font-size:15px;margin-bottom:4px">התקן כאפליקציה!</div>
+  <div style="color:#8ab8e8;font-size:13px;margin-bottom:12px">שמור על המסך הראשי ושחק בכל זמן</div>
+  <div style="display:flex;gap:8px">
+    <button id="installBtn" style="flex:1;background:linear-gradient(135deg,#3b9eff,#1a6ee0);color:#fff;border:none;border-radius:12px;padding:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif">התקן</button>
+    <button onclick="document.getElementById('installBanner').style.display='none'" style="flex:1;background:rgba(255,255,255,.08);color:#8ab8e8;border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:10px;font-size:14px;cursor:pointer;font-family:Arial,sans-serif">אחר כך</button>
+  </div>
+</div>
+
+<script>
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('installBanner');
+  if(banner && !localStorage.getItem('pwaInstalled')) {
+    setTimeout(() => banner.style.display = 'block', 3000);
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.onclick = async () => {
+    if(deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      if(result.outcome === 'accepted') {
+        localStorage.setItem('pwaInstalled','1');
+      }
+      deferredPrompt = null;
+    }
+    document.getElementById('installBanner').style.display = 'none';
+  };
+});
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('pwaInstalled','1');
+  document.getElementById('installBanner').style.display = 'none';
+});
+</script>
+<div id="errorBox"></div>
+
+<!-- ===== LOGIN ===== -->
+<section id="loginScreen">
+ <div class="hero">
+  <div class="bigLogo">🌍 מסביב לעולם</div>
+  <div class="subtitle">גרסה 4.0 · משחק מדינות, דגלים, בירות, מטבעות, שפות ואתרים</div>
+  <div>
+    <div class="pill">147 מדינות</div>
+    <div class="pill">מפת עולם</div>
+    <div class="pill">דרכון מטייל</div>
+    <div class="pill">חנות ו־XP</div>
+  </div>
+ </div>
+ <h2>בחר שחקן קיים או צור שחקן חדש</h2>
+ <div id="playersList" class="grid"></div>
+ <div class="panel">
+  <b>שחקן חדש</b><br><br>
+  <input id="playerNameInput" placeholder="הכנס שם שחקן">
+  <button onclick="createPlayer()">צור שחקן</button>
+ </div>
+</section>
+
+<!-- ===== HOME ===== -->
+<section id="homeScreen" class="hidden">
+ <div style="display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
+  <div class="avatar" id="homeAvatar">🧭</div>
+  <div style="text-align:right">
+   <h1 style="margin:0">שלום <span id="playerNameText"></span> 👋</h1>
+   <div class="small" id="rankText" style="color:var(--text2)"></div>
+  </div>
+ </div>
+ <button class="secondary" onclick="showLogin()">החלפת שחקן</button>
+
+ <div class="statsRow">
+  <div class="stat" style="cursor:pointer" onclick="showStatInfo('level')">רמה<br><span class="big" id="levelText">1</span><br><span id="xpToNextText" style="font-size:11px;color:var(--text2)"></span></div>
+  <div class="stat" style="cursor:pointer" onclick="showStatInfo('xp')">XP<br><span class="big" id="xpText">0</span></div>
+  <div class="stat" style="cursor:pointer" onclick="showStatInfo('coins')">מטבעות<br><span class="big" id="coinsText">0</span> 🪙</div>
+  <div class="stat" style="cursor:pointer" onclick="showStatInfo('streak')">רצף<br><span class="big" id="streakText">1</span> 🔥</div>
+  <div class="stat" style="cursor:pointer" onclick="showStatInfo('world')">עולם<br><span class="big" id="completionText">0%</span></div>
+ </div>
+
+ <div style="margin:10px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px">
+  <button onclick="showScreen('gamesScreen')">🎮 בחר משחק</button>
+  <button class="gold" onclick="dailyWheel()">🎁 גלגל מזל</button>
+  <button id="dailyMissionBtn" class="green" onclick="claimDailyMission()">🎯 משימה יומית</button>
+  <button class="purple" onclick="showScreen('collectionScreen')">🗂 אוסף מדינות</button>
+  <button class="green" onclick="showScreen('achievementsScreen')">🏆 הישגים</button>
+  <button class="gold" onclick="showScreen('shopScreen')">🛒 חנות</button>
+  <button class="purple" onclick="showScreen('passportScreen')">📘 דרכון</button>
+  <button class="secondary" onclick="showScreen('statsScreen')">📊 סטטיסטיקה</button>
+  <button class="secondary" onclick="showScreen('leaderboardScreen')">🏆 אלופים</button>
+  <button class="secondary" onclick="showScreen('settingsScreen')">⚙️ הגדרות</button>
+ </div>
+
+ <div class="panel" style="font-size:13px;color:var(--text2)"><b style="color:var(--text)">איסוף מדינה:</b> דגל, מטבע, שפה, עיר בירה, אתר תיירות ויבשת — כולם יחד!</div>
+
+ <div class="world real-map" id="worldMap">
+  <svg class="mapSvg" viewBox="0 0 1000 520" aria-label="מפת עולם">
+    <defs>
+      <linearGradient id="sea" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0%" stop-color="#0a2040"/><stop offset="100%" stop-color="#061528"/>
+      </linearGradient>
+      <filter id="shadow"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity=".3"/></filter>
+      <filter id="glow"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect width="1000" height="520" fill="url(#sea)"/>
+    <g opacity=".08"><path d="M0 130H1000M0 260H1000M0 390H1000M200 0V520M400 0V520M600 0V520M800 0V520" stroke="#3b9eff" stroke-width="1.5"/></g>
+    <g filter="url(#shadow)">
+      <path class="land americasLand" style="cursor:pointer" onclick="filterCollectionByContinent('Americas')" d="M155 85 C90 105 62 160 77 220 C95 285 135 296 165 350 C190 395 173 440 214 472 C250 500 292 461 283 415 C277 385 245 368 260 332 C281 284 336 270 348 222 C360 170 310 124 252 111 C225 105 202 82 155 85 Z M360 280 C335 305 330 345 350 374 C375 410 420 394 426 352 C432 311 397 270 360 280 Z"/>
+      <path class="land europeLand" style="cursor:pointer" onclick="filterCollectionByContinent('Europe')" d="M475 118 C430 122 398 148 405 181 C415 222 465 205 493 225 C518 243 551 225 570 196 C590 166 566 128 530 121 C508 116 493 115 475 118 Z"/>
+      <path class="land asiaLand" style="cursor:pointer" onclick="filterCollectionByContinent('Asia')" d="M565 120 C620 82 710 82 792 116 C860 145 914 202 892 260 C875 305 808 288 775 330 C736 380 655 366 625 318 C605 286 612 250 580 230 C545 208 523 150 565 120 Z"/>
+      <path class="land africaLand" style="cursor:pointer" onclick="filterCollectionByContinent('Africa')" d="M520 220 C472 245 450 304 468 362 C488 428 543 474 594 440 C632 415 612 364 644 330 C671 302 642 245 606 226 C579 211 548 205 520 220 Z"/>
+      <path class="land oceaniaLand" style="cursor:pointer" onclick="filterCollectionByContinent('Oceania')" d="M755 370 C800 348 872 360 904 397 C930 428 902 468 846 462 C788 456 725 418 755 370 Z M920 350 C940 342 963 350 970 368 C957 382 930 378 920 350 Z"/>
+      <path class="land islandLand" d="M450 80 C466 70 488 72 498 88 C485 102 458 100 450 80 Z M685 70 C702 60 728 66 734 84 C710 94 690 90 685 70 Z"/>
+    </g>
+    <g font-family="Heebo,Arial" font-size="16" font-weight="800" fill="rgba(59,158,255,.7)" text-anchor="middle">
+      <text x="205" y="235">אמריקה</text><text x="500" y="168">אירופה</text>
+      <text x="720" y="210">אסיה</text><text x="555" y="325">אפריקה</text>
+      <text x="835" y="420">אוקיאניה</text>
+    </g>
+  </svg>
+  <div class="mapCounter euCounter">אירופה <span id="cEurope"></span></div>
+  <div class="mapCounter asiaCounter">אסיה <span id="cAsia"></span></div>
+  <div class="mapCounter afCounter">אפריקה <span id="cAfrica"></span></div>
+  <div class="mapCounter amCounter">אמריקה <span id="cAmericas"></span></div>
+  <div class="mapCounter ocCounter">אוקיאניה <span id="cOceania"></span></div>
+ </div>
+ <div class="progress"><div class="bar" id="worldBar"></div></div>
+</section>
+
+<!-- ===== GAMES ===== -->
+<section id="gamesScreen" class="hidden">
+ <h2>בחר משחק 🎮</h2>
+ <div class="panel">בכל סוג משחק מותר לטעות עד <b>3 טעויות</b>. אחרי 3 טעויות המשחק ננעל לחצי שעה.</div>
+ <div class="grid" id="gamesBox"></div>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== RULES ===== -->
+<section id="rulesScreen" class="hidden">
+ <h2>📋 חוקי המשחק</h2>
+ <div id="rulesText" class="panel"></div>
+ <label style="color:var(--text2);display:block;margin:10px 0"><input type="checkbox" id="dontShowRules" onchange="if(this.checked)localStorage.setItem('dontShowRules','true');else localStorage.removeItem('dontShowRules')"> אל תציג שוב</label>
+ <button class="green" onclick="startGame()">✅ הבנתי, נתחיל!</button>
+ <button class="secondary" onclick="showScreen('gamesScreen')">← חזרה</button>
+</section>
+
+<!-- ===== GAME ===== -->
+<section id="gameScreen" class="hidden">
+ <div class="topbar" style="padding:8px 12px;margin-bottom:8px">
+  <div style="font-size:13px">👤 <span id="gamePlayerName"></span></div>
+  <div style="font-size:13px">🎮 <span id="modeName"></span></div>
+  <div style="font-size:13px">ניקוד: <span id="scoreText">0</span></div>
+  <div style="font-size:13px">⭐ <span id="gameXpText">0</span> XP</div>
+  <div style="font-size:13px">🪙 <span id="gameCoinsText">0</span></div>
+  <div style="font-size:13px">❌ <span id="mistakesText">0</span>/<span id="maxMistakesText">3</span></div>
+  <div style="font-size:13px">📝 <span id="qText">1</span>/<span id="totalQText">10</span></div>
+ </div>
+
+ <!-- Question dots progress -->
+ <div class="questionProgress" id="questionDots" style="margin-bottom:6px"></div>
+
+ <!-- Timer bar with time label -->
+ <div style="margin-bottom:10px">
+  <div class="timerBar" style="margin-bottom:4px;height:7px"><div class="timerBarInner" id="timerBarEl"></div></div>
+  <div class="timer" style="font-size:14px;font-weight:900;text-align:center;color:var(--bad)">⏱ <span id="timerText">30</span>s</div>
+ </div>
+
+ <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:8px">
+  <button class="gold" onclick="buyLifeInGame()" style="padding:5px 10px;font-size:12px;margin:2px">❤️ 25🪙</button>
+  <button class="purple" onclick="useHint()" style="padding:5px 10px;font-size:12px;margin:2px">💡 רמז (<span id="hintCount">0</span>)</button>
+  <button class="purple" onclick="useSkip()" style="padding:5px 10px;font-size:12px;margin:2px">⏭ דילוג (<span id="skipCount">0</span>)</button>
+  <button class="purple" onclick="useFreeze()" style="padding:5px 10px;font-size:12px;margin:2px">❄️ הקפאה (<span id="freezeCount">0</span>)</button>
+  <button class="secondary" onclick="confirmExit()" style="padding:5px 10px;font-size:12px;margin:2px">🚪 יציאה</button>
+ </div>
+
+ <div id="surpriseBox" class="panel hidden" style="margin:4px 0;padding:10px"></div>
+ <div id="flagBox"></div>
+ <div id="questionText" class="question" style="font-size:19px;margin:10px 0"></div>
+ <div id="answersBox" class="answers" style="gap:8px;margin:8px 0"></div>
+ <input id="expertInput" class="hidden" placeholder="כתוב תשובה כאן">
+ <button id="expertBtn" class="green hidden" onclick="submitExpert()">✅ אישור</button>
+ <div id="messageBox" class="message" style="font-size:16px;margin:6px"></div>
+</section>
+
+<!-- ===== END ===== -->
+<section id="endScreen" class="hidden">
+ <div id="endEmoji" class="confetti">🎉🏆🎉</div>
+ <h1 id="endTitle">סיום המשחק!</h1>
+ <div class="statsRow" style="margin:12px 0">
+  <div class="stat">ניקוד<br><span class="big" id="finalScoreText" style="color:var(--gold)"></span></div>
+  <div class="stat">נכון<br><span class="big" id="endCorrect" style="color:var(--good)"></span></div>
+  <div class="stat">טעויות<br><span class="big" id="endWrong" style="color:var(--bad)"></span></div>
+ </div>
+ <div id="rewardText" class="panel"></div>
+ <div id="mistakesReview" class="panel hidden" style="text-align:right"></div>
+ <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:12px">
+  <button class="green" onclick="startGame()">🔄 שחק שוב</button>
+  <button onclick="showScreen('gamesScreen')">🎮 משחק אחר</button>
+  <button class="secondary" onclick="showScreen('homeScreen')">🏠 בית</button>
+ </div>
+</section>
+
+<!-- ===== CONTINENT TROPHY ===== -->
+<section id="continentTrophyScreen" class="hidden">
+ <div class="trophy-pop">🏆</div>
+ <h1 id="continentTrophyTitle">גביע חדש!</h1>
+ <div class="panel" id="continentTrophyText"></div>
+ <button class="green" onclick="showScreen('homeScreen')">🎉 איזה יופי!</button>
+</section>
+
+<!-- ===== COLLECTION ===== -->
+<section id="collectionScreen" class="hidden">
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+ <h2>🗂 אוסף מדינות</h2>
+ <div class="pill"><span id="collectedCount"></span></div>
+ <div style="margin:10px 0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+  <input type="text" id="countrySearch" placeholder="🔍 חפש מדינה..." oninput="renderCollection()" style="max-width:220px">
+  <button id="sortAll" class="secondary" style="padding:7px 12px;font-size:13px" onclick="setCollectionSort('all')">הכל</button>
+  <button id="sortDone" class="secondary" style="padding:7px 12px;font-size:13px" onclick="setCollectionSort('done')">✅ הושלמו</button>
+  <button id="sortPending" class="secondary" style="padding:7px 12px;font-size:13px" onclick="setCollectionSort('pending')">⏳ בתהליך</button>
+ </div>
+ <div class="grid" id="collectionBox"></div>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== ACHIEVEMENTS ===== -->
+<section id="achievementsScreen" class="hidden">
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+ <h2>🏅 הישגים וגביעים</h2>
+ <div class="grid" id="achievementsBox"></div>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== SHOP ===== -->
+<section id="shopScreen" class="hidden">
+ <button class="secondary" onclick="cameFromGameToShop?returnToGameFromShop():showScreen('homeScreen')">← חזרה</button>
+ <h2>🛒 חנות</h2>
+ <div class="grid" id="shopBox"></div>
+ <button class="secondary" onclick="cameFromGameToShop?returnToGameFromShop():showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== PASSPORT ===== -->
+<section id="passportScreen" class="hidden">
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+ <h2>📘 הדרכון שלי</h2>
+ <div class="panel passportCard">
+  <b>פרס המטייל</b><br>כל תשובה נכונה על אתר תיירות מחתימה לך מקום בדרכון.<br>כל 10 חותמות מקבלים בונוס מטבעות ו־XP.
+ </div>
+ <div class="statsRow">
+  <div class="stat">חותמות בדרכון<br><span class="big" id="passportCount">0</span></div>
+  <div class="stat">בונוסים שנאספו<br><span class="big" id="passportBonuses">0</span></div>
+ </div>
+ <div class="progress"><div class="bar" id="passportBar"></div></div>
+ <div id="passportMsg" class="message"></div>
+ <div class="grid" id="passportBox"></div>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== LEADERBOARD ===== -->
+<section id="leaderboardScreen" class="hidden">
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+ <h2>🏆 טבלת אלופים</h2>
+ <div class="panel" style="font-size:13px;color:var(--text2)">דירוג לפי XP, מדינות, ניצחונות ומטבעות</div>
+ <div id="leaderboardBox" class="panel"></div>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== STATS ===== -->
+<section id="statsScreen" class="hidden">
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+ <h2>📊 סטטיסטיקה</h2>
+ <div class="panel" id="statsBox"></div>
+ <button class="bad" onclick="resetCurrentPlayer()">🔄 איפוס שחקן</button>
+ <button class="secondary" onclick="showScreen('homeScreen')">← חזרה</button>
+</section>
+
+<!-- ===== SETTINGS ===== -->
+<section id="settingsScreen" class="hidden">
+ <h2>⚙️ הגדרות</h2>
+ <div class="panel">
+  <div onclick="toggleAvatarPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none">
+   <label style="color:var(--text2);cursor:pointer">אווטאר שחקן — <span id="currentAvatarPreview" style="font-size:20px">🧭</span></label>
+   <span id="avatarArrow" style="color:var(--text2);font-size:18px;transition:.2s">▼</span>
+  </div>
+  <div id="avatarPanel" style="max-height:0;overflow:hidden;transition:max-height .35s ease">
+   <div id="avatarChoices" style="margin:10px 0"></div>
+  </div>
+  <div class="sep"></div>
+  <label style="color:var(--text2)">תצוגת משחקים</label><br>
+  <select id="layoutSelect" onchange="setLayout(this.value)">
+    <option value="grid">סמלים מרובעים</option>
+    <option value="list">רשימה</option>
+  </select><br>
+  <label style="color:var(--text2)">ערכת צבע</label><br>
+  <select id="themeSelect" onchange="setTheme(this.value)">
+    <option value="ocean">🌊 ים כחול</option>
+    <option value="sunset">🌅 שקיעה</option>
+    <option value="forest">🌲 יער</option>
+    <option value="purple">💜 סגול</option>
+    <option value="dark">🌑 מצב כהה</option>
+  </select><br>
+  <label style="color:var(--text2)"><input type="checkbox" id="soundToggle" checked onchange="toggleSound()"> 🔊 צלילים פעילים</label><br>
+  <label style="color:var(--text2)">⏱ זמן לשאלה</label><br>
+  <select id="timeSelect" onchange="setQuestionTime(this.value)">
+    <option value="30">30 שניות</option><option value="20">20 שניות</option>
+    <option value="15">15 שניות</option><option value="10">10 שניות</option>
+  </select>
+ </div>
+ <div class="panel">
+  <b>גיבוי שחקן</b><br><br>
+  <button class="green" onclick="exportPlayer()">💾 ייצוא לקובץ</button><br>
+  <input class="fileInput" type="file" id="importFile" accept=".json" onchange="importPlayer(event)" style="margin-top:10px">
+ </div>
+ <button class="secondary" onclick="goBackFromSettings()">← חזרה</button>
+</section>
+</div>
+
+<script>
+
+const countries=[{"name_he": "ישראל", "name_en": "Israel", "code": "il", "capital_he": "ירושלים", "capital_en": "Jerusalem", "currency_he": "שקל חדש", "currency_en": "New Israeli Shekel", "language_he": "עברית", "language_en": "Hebrew", "site_he": "הכותל המערבי", "site_en": "Western Wall", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "צרפת", "name_en": "France", "code": "fr", "capital_he": "פריז", "capital_en": "Paris", "currency_he": "אירו", "currency_en": "Euro", "language_he": "צרפתית", "language_en": "French", "site_he": "מגדל אייפל", "site_en": "Eiffel Tower", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "גרמניה", "name_en": "Germany", "code": "de", "capital_he": "ברלין", "capital_en": "Berlin", "currency_he": "אירו", "currency_en": "Euro", "language_he": "גרמנית", "language_en": "German", "site_he": "שער ברנדנבורג", "site_en": "Brandenburg Gate", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "איטליה", "name_en": "Italy", "code": "it", "capital_he": "רומא", "capital_en": "Rome", "currency_he": "אירו", "currency_en": "Euro", "language_he": "איטלקית", "language_en": "Italian", "site_he": "הקולוסיאום", "site_en": "Colosseum", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "ספרד", "name_en": "Spain", "code": "es", "capital_he": "מדריד", "capital_en": "Madrid", "currency_he": "אירו", "currency_en": "Euro", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "סגרדה פמיליה", "site_en": "Sagrada Familia", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "בריטניה", "name_en": "United Kingdom", "code": "gb", "capital_he": "לונדון", "capital_en": "London", "currency_he": "לירה שטרלינג", "currency_en": "Pound Sterling", "language_he": "אנגלית", "language_en": "English", "site_he": "ביג בן", "site_en": "Big Ben", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "יוון", "name_en": "Greece", "code": "gr", "capital_he": "אתונה", "capital_en": "Athens", "currency_he": "אירו", "currency_en": "Euro", "language_he": "יוונית", "language_en": "Greek", "site_he": "האקרופוליס", "site_en": "Acropolis", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "שוויץ", "name_en": "Switzerland", "code": "ch", "capital_he": "ברן", "capital_en": "Bern", "currency_he": "פרנק שווייצרי", "currency_en": "Swiss Franc", "language_he": "גרמנית / צרפתית / איטלקית", "language_en": "German / French / Italian", "site_he": "הר המטרהורן", "site_en": "Matterhorn", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "הולנד", "name_en": "Netherlands", "code": "nl", "capital_he": "אמסטרדם", "capital_en": "Amsterdam", "currency_he": "אירו", "currency_en": "Euro", "language_he": "הולנדית", "language_en": "Dutch", "site_he": "תעלות אמסטרדם", "site_en": "Amsterdam Canals", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "בלגיה", "name_en": "Belgium", "code": "be", "capital_he": "בריסל", "capital_en": "Brussels", "currency_he": "אירו", "currency_en": "Euro", "language_he": "הולנדית / צרפתית", "language_en": "Dutch / French", "site_he": "הכיכר הגדולה בבריסל", "site_en": "Grand Place", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "אוסטריה", "name_en": "Austria", "code": "at", "capital_he": "וינה", "capital_en": "Vienna", "currency_he": "אירו", "currency_en": "Euro", "language_he": "גרמנית", "language_en": "German", "site_he": "ארמון שנברון", "site_en": "Schönbrunn Palace", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "צ׳כיה", "name_en": "Czech Republic", "code": "cz", "capital_he": "פראג", "capital_en": "Prague", "currency_he": "קורונה צ׳כית", "currency_en": "Czech Koruna", "language_he": "צ׳כית", "language_en": "Czech", "site_he": "גשר קארל", "site_en": "Charles Bridge", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "פולין", "name_en": "Poland", "code": "pl", "capital_he": "ורשה", "capital_en": "Warsaw", "currency_he": "זלוטי", "currency_en": "Zloty", "language_he": "פולנית", "language_en": "Polish", "site_he": "העיר העתיקה בקרקוב", "site_en": "Kraków Old Town", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "רומניה", "name_en": "Romania", "code": "ro", "capital_he": "בוקרשט", "capital_en": "Bucharest", "currency_he": "לאו רומני", "currency_en": "Romanian Leu", "language_he": "רומנית", "language_en": "Romanian", "site_he": "טירת בראן", "site_en": "Bran Castle", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "שוודיה", "name_en": "Sweden", "code": "se", "capital_he": "סטוקהולם", "capital_en": "Stockholm", "currency_he": "קרונה שוודית", "currency_en": "Swedish Krona", "language_he": "שוודית", "language_en": "Swedish", "site_he": "מוזיאון ואסה", "site_en": "Vasa Museum", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "נורווגיה", "name_en": "Norway", "code": "no", "capital_he": "אוסלו", "capital_en": "Oslo", "currency_he": "קרונה נורווגית", "currency_en": "Norwegian Krone", "language_he": "נורווגית", "language_en": "Norwegian", "site_he": "פיורדים נורווגיים", "site_en": "Norwegian Fjords", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "דנמרק", "name_en": "Denmark", "code": "dk", "capital_he": "קופנהגן", "capital_en": "Copenhagen", "currency_he": "קרונה דנית", "currency_en": "Danish Krone", "language_he": "דנית", "language_en": "Danish", "site_he": "פסל בת הים הקטנה", "site_en": "Little Mermaid", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "פינלנד", "name_en": "Finland", "code": "fi", "capital_he": "הלסינקי", "capital_en": "Helsinki", "currency_he": "אירו", "currency_en": "Euro", "language_he": "פינית", "language_en": "Finnish", "site_he": "מבצר סואומנלינה", "site_en": "Suomenlinna", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "אירלנד", "name_en": "Ireland", "code": "ie", "capital_he": "דבלין", "capital_en": "Dublin", "currency_he": "אירו", "currency_en": "Euro", "language_he": "אנגלית / אירית", "language_en": "English / Irish", "site_he": "צוקי מוהר", "site_en": "Cliffs of Moher", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "פורטוגל", "name_en": "Portugal", "code": "pt", "capital_he": "ליסבון", "capital_en": "Lisbon", "currency_he": "אירו", "currency_en": "Euro", "language_he": "פורטוגזית", "language_en": "Portuguese", "site_he": "מגדל בלם", "site_en": "Belém Tower", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "אוקראינה", "name_en": "Ukraine", "code": "ua", "capital_he": "קייב", "capital_en": "Kyiv", "currency_he": "הריבניה", "currency_en": "Hryvnia", "language_he": "אוקראינית", "language_en": "Ukrainian", "site_he": "קתדרלת סופיה הקדושה", "site_en": "Saint Sophia Cathedral", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "הונגריה", "name_en": "Hungary", "code": "hu", "capital_he": "בודפשט", "capital_en": "Budapest", "currency_he": "פורינט", "currency_en": "Forint", "language_he": "הונגרית", "language_en": "Hungarian", "site_he": "בניין הפרלמנט", "site_en": "Hungarian Parliament", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "בולגריה", "name_en": "Bulgaria", "code": "bg", "capital_he": "סופיה", "capital_en": "Sofia", "currency_he": "לב בולגרי", "currency_en": "Bulgarian Lev", "language_he": "בולגרית", "language_en": "Bulgarian", "site_he": "קתדרלת אלכסנדר נבסקי", "site_en": "Alexander Nevsky Cathedral", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "סלובקיה", "name_en": "Slovakia", "code": "sk", "capital_he": "ברטיסלבה", "capital_en": "Bratislava", "currency_he": "אירו", "currency_en": "Euro", "language_he": "סלובקית", "language_en": "Slovak", "site_he": "טירת ברטיסלבה", "site_en": "Bratislava Castle", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "סלובניה", "name_en": "Slovenia", "code": "si", "capital_he": "ליובליאנה", "capital_en": "Ljubljana", "currency_he": "אירו", "currency_en": "Euro", "language_he": "סלובנית", "language_en": "Slovene", "site_he": "אגם בלד", "site_en": "Lake Bled", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "קרואטיה", "name_en": "Croatia", "code": "hr", "capital_he": "זאגרב", "capital_en": "Zagreb", "currency_he": "אירו", "currency_en": "Euro", "language_he": "קרואטית", "language_en": "Croatian", "site_he": "דוברובניק", "site_en": "Dubrovnik", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "סרביה", "name_en": "Serbia", "code": "rs", "capital_he": "בלגרד", "capital_en": "Belgrade", "currency_he": "דינר סרבי", "currency_en": "Serbian Dinar", "language_he": "סרבית", "language_en": "Serbian", "site_he": "מצודת בלגרד", "site_en": "Belgrade Fortress", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "אלבניה", "name_en": "Albania", "code": "al", "capital_he": "טירנה", "capital_en": "Tirana", "currency_he": "לק אלבני", "currency_en": "Lek", "language_he": "אלבנית", "language_en": "Albanian", "site_he": "בראט", "site_en": "Berat", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "איסלנד", "name_en": "Iceland", "code": "is", "capital_he": "רייקיאוויק", "capital_en": "Reykjavik", "currency_he": "קרונה איסלנדית", "currency_en": "Icelandic Krona", "language_he": "איסלנדית", "language_en": "Icelandic", "site_he": "הלגונה הכחולה", "site_en": "Blue Lagoon", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "גאורגיה", "name_en": "Georgia", "code": "ge", "capital_he": "טביליסי", "capital_en": "Tbilisi", "currency_he": "לארי גאורגי", "currency_en": "Georgian Lari", "language_he": "גאורגית", "language_en": "Georgian", "site_he": "מצודת נאריקלה", "site_en": "Narikala Fortress", "continent_he": "אירופה / אסיה", "continent_en": "Europe / Asia"}, {"name_he": "יפן", "name_en": "Japan", "code": "jp", "capital_he": "טוקיו", "capital_en": "Tokyo", "currency_he": "ין יפני", "currency_en": "Japanese Yen", "language_he": "יפנית", "language_en": "Japanese", "site_he": "הר פוג׳י", "site_en": "Mount Fuji", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "סין", "name_en": "China", "code": "cn", "capital_he": "בייג׳ינג", "capital_en": "Beijing", "currency_he": "יואן", "currency_en": "Yuan", "language_he": "סינית", "language_en": "Chinese", "site_he": "החומה הסינית", "site_en": "Great Wall of China", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "הודו", "name_en": "India", "code": "in", "capital_he": "ניו דלהי", "capital_en": "New Delhi", "currency_he": "רופי הודי", "currency_en": "Indian Rupee", "language_he": "הינדית / אנגלית", "language_en": "Hindi / English", "site_he": "טאג׳ מהאל", "site_en": "Taj Mahal", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "תאילנד", "name_en": "Thailand", "code": "th", "capital_he": "בנגקוק", "capital_en": "Bangkok", "currency_he": "בהט תאילנדי", "currency_en": "Thai Baht", "language_he": "תאית", "language_en": "Thai", "site_he": "ארמון המלך", "site_en": "Grand Palace", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "אינדונזיה", "name_en": "Indonesia", "code": "id", "capital_he": "ג׳קרטה", "capital_en": "Jakarta", "currency_he": "רופיה אינדונזית", "currency_en": "Indonesian Rupiah", "language_he": "אינדונזית", "language_en": "Indonesian", "site_he": "מקדש בורובודור", "site_en": "Borobudur Temple", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "טורקיה", "name_en": "Turkey", "code": "tr", "capital_he": "אנקרה", "capital_en": "Ankara", "currency_he": "לירה טורקית", "currency_en": "Turkish Lira", "language_he": "טורקית", "language_en": "Turkish", "site_he": "איה סופיה", "site_en": "Hagia Sophia", "continent_he": "אסיה / אירופה", "continent_en": "Asia / Europe"}, {"name_he": "ירדן", "name_en": "Jordan", "code": "jo", "capital_he": "עמאן", "capital_en": "Amman", "currency_he": "דינר ירדני", "currency_en": "Jordanian Dinar", "language_he": "ערבית", "language_en": "Arabic", "site_he": "פטרה", "site_en": "Petra", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "ערב הסעודית", "name_en": "Saudi Arabia", "code": "sa", "capital_he": "ריאד", "capital_en": "Riyadh", "currency_he": "ריאל סעודי", "currency_en": "Saudi Riyal", "language_he": "ערבית", "language_en": "Arabic", "site_he": "מכה", "site_en": "Mecca", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "איחוד האמירויות", "name_en": "United Arab Emirates", "code": "ae", "capital_he": "אבו דאבי", "capital_en": "Abu Dhabi", "currency_he": "דירהם אמירתי", "currency_en": "UAE Dirham", "language_he": "ערבית", "language_en": "Arabic", "site_he": "בורג׳ חליפה", "site_en": "Burj Khalifa", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "קטאר", "name_en": "Qatar", "code": "qa", "capital_he": "דוחה", "capital_en": "Doha", "currency_he": "ריאל קטרי", "currency_en": "Qatari Riyal", "language_he": "ערבית", "language_en": "Arabic", "site_he": "שוק וואקיף", "site_en": "Souq Waqif", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "איראן", "name_en": "Iran", "code": "ir", "capital_he": "טהראן", "capital_en": "Tehran", "currency_he": "ריאל איראני", "currency_en": "Iranian Rial", "language_he": "פרסית", "language_en": "Persian", "site_he": "כיכר נקש-א ג׳האן", "site_en": "Naqsh-e Jahan Square", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "עיראק", "name_en": "Iraq", "code": "iq", "capital_he": "בגדד", "capital_en": "Baghdad", "currency_he": "דינר עיראקי", "currency_en": "Iraqi Dinar", "language_he": "ערבית / כורדית", "language_en": "Arabic / Kurdish", "site_he": "הזיגוראת של אור", "site_en": "Ziggurat of Ur", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "פקיסטן", "name_en": "Pakistan", "code": "pk", "capital_he": "אסלאמאבאד", "capital_en": "Islamabad", "currency_he": "רופי פקיסטני", "currency_en": "Pakistani Rupee", "language_he": "אורדו / אנגלית", "language_en": "Urdu / English", "site_he": "מסגד פייסל", "site_en": "Faisal Mosque", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "קזחסטן", "name_en": "Kazakhstan", "code": "kz", "capital_he": "אסטנה", "capital_en": "Astana", "currency_he": "טנגה", "currency_en": "Tenge", "language_he": "קזחית / רוסית", "language_en": "Kazakh / Russian", "site_he": "מגדל בייטרק", "site_en": "Baiterek Tower", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "אוזבקיסטן", "name_en": "Uzbekistan", "code": "uz", "capital_he": "טשקנט", "capital_en": "Tashkent", "currency_he": "סום אוזבקי", "currency_en": "Uzbek Som", "language_he": "אוזבקית", "language_en": "Uzbek", "site_he": "כיכר רג׳יסטאן", "site_en": "Registan Square", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "קוריאה הדרומית", "name_en": "South Korea", "code": "kr", "capital_he": "סיאול", "capital_en": "Seoul", "currency_he": "וון דרום קוריאני", "currency_en": "South Korean Won", "language_he": "קוריאנית", "language_en": "Korean", "site_he": "ארמון גיונגבוקגונג", "site_en": "Gyeongbokgung Palace", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "וייטנאם", "name_en": "Vietnam", "code": "vn", "capital_he": "האנוי", "capital_en": "Hanoi", "currency_he": "דונג וייטנאמי", "currency_en": "Vietnamese Dong", "language_he": "וייטנאמית", "language_en": "Vietnamese", "site_he": "מפרץ הא לונג", "site_en": "Ha Long Bay", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "מלזיה", "name_en": "Malaysia", "code": "my", "capital_he": "קואלה לומפור", "capital_en": "Kuala Lumpur", "currency_he": "רינגיט", "currency_en": "Ringgit", "language_he": "מלאית", "language_en": "Malay", "site_he": "מגדלי פטרונס", "site_en": "Petronas Towers", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "סינגפור", "name_en": "Singapore", "code": "sg", "capital_he": "סינגפור", "capital_en": "Singapore", "currency_he": "דולר סינגפורי", "currency_en": "Singapore Dollar", "language_he": "אנגלית / מלאית / סינית / טמילית", "language_en": "English / Malay / Chinese / Tamil", "site_he": "מרינה ביי סנדס", "site_en": "Marina Bay Sands", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "פיליפינים", "name_en": "Philippines", "code": "ph", "capital_he": "מנילה", "capital_en": "Manila", "currency_he": "פסו פיליפיני", "currency_en": "Philippine Peso", "language_he": "פיליפינית / אנגלית", "language_en": "Filipino / English", "site_he": "טרסות האורז בנאווה", "site_en": "Banaue Rice Terraces", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "נפאל", "name_en": "Nepal", "code": "np", "capital_he": "קטמנדו", "capital_en": "Kathmandu", "currency_he": "רופי נפאלי", "currency_en": "Nepalese Rupee", "language_he": "נפאלית", "language_en": "Nepali", "site_he": "הר האוורסט", "site_en": "Mount Everest", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "קפריסין", "name_en": "Cyprus", "code": "cy", "capital_he": "ניקוסיה", "capital_en": "Nicosia", "currency_he": "אירו", "currency_en": "Euro", "language_he": "יוונית / טורקית", "language_en": "Greek / Turkish", "site_he": "סלע אפרודיטה", "site_en": "Aphrodite's Rock", "continent_he": "אירופה / אסיה", "continent_en": "Europe / Asia"}, {"name_he": "ארצות הברית", "name_en": "United States", "code": "us", "capital_he": "וושינגטון די. סי.", "capital_en": "Washington, D.C.", "currency_he": "דולר אמריקאי", "currency_en": "US Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "פסל החירות", "site_en": "Statue of Liberty", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "קנדה", "name_en": "Canada", "code": "ca", "capital_he": "אוטווה", "capital_en": "Ottawa", "currency_he": "דולר קנדי", "currency_en": "Canadian Dollar", "language_he": "אנגלית / צרפתית", "language_en": "English / French", "site_he": "מפלי הניאגרה", "site_en": "Niagara Falls", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "מקסיקו", "name_en": "Mexico", "code": "mx", "capital_he": "מקסיקו סיטי", "capital_en": "Mexico City", "currency_he": "פסו מקסיקני", "currency_en": "Mexican Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "צ׳יצ׳ן איצה", "site_en": "Chichen Itza", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ברזיל", "name_en": "Brazil", "code": "br", "capital_he": "ברזיליה", "capital_en": "Brasília", "currency_he": "ריאל ברזילאי", "currency_en": "Brazilian Real", "language_he": "פורטוגזית", "language_en": "Portuguese", "site_he": "פסל ישו הגואל", "site_en": "Christ the Redeemer", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ארגנטינה", "name_en": "Argentina", "code": "ar", "capital_he": "בואנוס איירס", "capital_en": "Buenos Aires", "currency_he": "פסו ארגנטינאי", "currency_en": "Argentine Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "קרחון פריטו מורנו", "site_en": "Perito Moreno Glacier", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "צ׳ילה", "name_en": "Chile", "code": "cl", "capital_he": "סנטיאגו", "capital_en": "Santiago", "currency_he": "פסו צ׳יליאני", "currency_en": "Chilean Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "אי הפסחא", "site_en": "Easter Island", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "פרו", "name_en": "Peru", "code": "pe", "capital_he": "לימה", "capital_en": "Lima", "currency_he": "סול פרואני", "currency_en": "Peruvian Sol", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "מאצ׳ו פיצ׳ו", "site_en": "Machu Picchu", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "קולומביה", "name_en": "Colombia", "code": "co", "capital_he": "בוגוטה", "capital_en": "Bogotá", "currency_he": "פסו קולומביאני", "currency_en": "Colombian Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "קרטחנה העתיקה", "site_en": "Cartagena Old Town", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "קוסטה ריקה", "name_en": "Costa Rica", "code": "cr", "capital_he": "סן חוסה", "capital_en": "San José", "currency_he": "קולון", "currency_en": "Costa Rican Colón", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "הר הגעש ארנל", "site_en": "Arenal Volcano", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "פנמה", "name_en": "Panama", "code": "pa", "capital_he": "פנמה סיטי", "capital_en": "Panama City", "currency_he": "בלבואה / דולר", "currency_en": "Balboa / US Dollar", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "תעלת פנמה", "site_en": "Panama Canal", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "קובה", "name_en": "Cuba", "code": "cu", "capital_he": "הוואנה", "capital_en": "Havana", "currency_he": "פסו קובני", "currency_en": "Cuban Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "הוואנה העתיקה", "site_en": "Old Havana", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ג׳מייקה", "name_en": "Jamaica", "code": "jm", "capital_he": "קינגסטון", "capital_en": "Kingston", "currency_he": "דולר ג׳מייקני", "currency_en": "Jamaican Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "מפלי נהר דאן", "site_en": "Dunn's River Falls", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "מצרים", "name_en": "Egypt", "code": "eg", "capital_he": "קהיר", "capital_en": "Cairo", "currency_he": "לירה מצרית", "currency_en": "Egyptian Pound", "language_he": "ערבית", "language_en": "Arabic", "site_he": "פירמידות גיזה", "site_en": "Pyramids of Giza", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "מרוקו", "name_en": "Morocco", "code": "ma", "capital_he": "רבאט", "capital_en": "Rabat", "currency_he": "דירהם מרוקאי", "currency_en": "Moroccan Dirham", "language_he": "ערבית / אמאזיגית", "language_en": "Arabic / Amazigh", "site_he": "העיר העתיקה במרקש", "site_en": "Marrakesh Medina", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "תוניסיה", "name_en": "Tunisia", "code": "tn", "capital_he": "תוניס", "capital_en": "Tunis", "currency_he": "דינר תוניסאי", "currency_en": "Tunisian Dinar", "language_he": "ערבית", "language_en": "Arabic", "site_he": "עתיקות קרתגו", "site_en": "Carthage Ruins", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "דרום אפריקה", "name_en": "South Africa", "code": "za", "capital_he": "פרטוריה", "capital_en": "Pretoria", "currency_he": "ראנד", "currency_en": "Rand", "language_he": "אנגלית ועוד", "language_en": "English and others", "site_he": "הר השולחן", "site_en": "Table Mountain", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "קניה", "name_en": "Kenya", "code": "ke", "capital_he": "ניירובי", "capital_en": "Nairobi", "currency_he": "שילינג קנייתי", "currency_en": "Kenyan Shilling", "language_he": "סוואהילית / אנגלית", "language_en": "Swahili / English", "site_he": "שמורת מסאי מארה", "site_en": "Maasai Mara", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "טנזניה", "name_en": "Tanzania", "code": "tz", "capital_he": "דודומה", "capital_en": "Dodoma", "currency_he": "שילינג טנזני", "currency_en": "Tanzanian Shilling", "language_he": "סוואהילית / אנגלית", "language_en": "Swahili / English", "site_he": "הסרנגטי", "site_en": "Serengeti", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "ניגריה", "name_en": "Nigeria", "code": "ng", "capital_he": "אבוג׳ה", "capital_en": "Abuja", "currency_he": "נאירה", "currency_en": "Naira", "language_he": "אנגלית", "language_en": "English", "site_he": "סלע זומה", "site_en": "Zuma Rock", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אתיופיה", "name_en": "Ethiopia", "code": "et", "capital_he": "אדיס אבבה", "capital_en": "Addis Ababa", "currency_he": "ביר אתיופי", "currency_en": "Ethiopian Birr", "language_he": "אמהרית", "language_en": "Amharic", "site_he": "כנסיות לליבלה", "site_en": "Lalibela Churches", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "סודאן", "name_en": "Sudan", "code": "sd", "capital_he": "חרטום", "capital_en": "Khartoum", "currency_he": "לירה סודאנית", "currency_en": "Sudanese Pound", "language_he": "ערבית / אנגלית", "language_en": "Arabic / English", "site_he": "הפירמידות המרואיטיות", "site_en": "Meroe Pyramids", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "סנגל", "name_en": "Senegal", "code": "sn", "capital_he": "דקר", "capital_en": "Dakar", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "האי גורה", "site_en": "Gorée Island", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "זימבבואה", "name_en": "Zimbabwe", "code": "zw", "capital_he": "הארארה", "capital_en": "Harare", "currency_he": "דולר זימבבואי", "currency_en": "Zimbabwean Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "מפלי ויקטוריה", "site_en": "Victoria Falls", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "לוב", "name_en": "Libya", "code": "ly", "capital_he": "טריפולי", "capital_en": "Tripoli", "currency_he": "דינר לובי", "currency_en": "Libyan Dinar", "language_he": "ערבית", "language_en": "Arabic", "site_he": "לפטיס מגנה", "site_en": "Leptis Magna", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אוסטרליה", "name_en": "Australia", "code": "au", "capital_he": "קנברה", "capital_en": "Canberra", "currency_he": "דולר אוסטרלי", "currency_en": "Australian Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "בית האופרה בסידני", "site_en": "Sydney Opera House", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "ניו זילנד", "name_en": "New Zealand", "code": "nz", "capital_he": "ולינגטון", "capital_en": "Wellington", "currency_he": "דולר ניו זילנדי", "currency_en": "New Zealand Dollar", "language_he": "אנגלית / מאורית", "language_en": "English / Māori", "site_he": "פיורדלנד", "site_en": "Fiordland", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "פיג׳י", "name_en": "Fiji", "code": "fj", "capital_he": "סובה", "capital_en": "Suva", "currency_he": "דולר פיג׳י", "currency_en": "Fijian Dollar", "language_he": "אנגלית / פיג׳ית", "language_en": "English / Fijian", "site_he": "איי ממנוקה", "site_en": "Mamanuca Islands", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "פפואה גינאה החדשה", "name_en": "Papua New Guinea", "code": "pg", "capital_he": "פורט מורסבי", "capital_en": "Port Moresby", "currency_he": "קינה", "currency_en": "Kina", "language_he": "אנגלית ועוד", "language_en": "English and others", "site_he": "מסלול קוקודה", "site_en": "Kokoda Track", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "סמואה", "name_en": "Samoa", "code": "ws", "capital_he": "אפיה", "capital_en": "Apia", "currency_he": "טאלה", "currency_en": "Tala", "language_he": "סמואית / אנגלית", "language_en": "Samoan / English", "site_he": "בריכת טו סואה", "site_en": "To Sua Ocean Trench", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "טונגה", "name_en": "Tonga", "code": "to", "capital_he": "נוקואלופה", "capital_en": "Nukuʻalofa", "currency_he": "פאʻאנגה", "currency_en": "Paʻanga", "language_he": "טונגאית / אנגלית", "language_en": "Tongan / English", "site_he": "חופי טונגה", "site_en": "Tonga Beaches", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "טובאלו", "name_en": "Tuvalu", "code": "tv", "capital_he": "פונפוטי", "capital_en": "Funafuti", "currency_he": "דולר אוסטרלי", "currency_en": "Australian Dollar", "language_he": "טובאלואנית / אנגלית", "language_en": "Tuvaluan / English", "site_he": "לגונת פונפוטי", "site_en": "Funafuti Lagoon", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "קיריבטי", "name_en": "Kiribati", "code": "ki", "capital_he": "טאראווה", "capital_en": "Tarawa", "currency_he": "דולר אוסטרלי", "currency_en": "Australian Dollar", "language_he": "אנגלית / גילברטית", "language_en": "English / Gilbertese", "site_he": "אטול טאראווה", "site_en": "Tarawa Atoll", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "איי מרשל", "name_en": "Marshall Islands", "code": "mh", "capital_he": "מג׳ורו", "capital_en": "Majuro", "currency_he": "דולר אמריקאי", "currency_en": "US Dollar", "language_he": "מרשלית / אנגלית", "language_en": "Marshallese / English", "site_he": "אטול ביקיני", "site_en": "Bikini Atoll", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "לוקסמבורג", "name_en": "Luxembourg", "code": "lu", "capital_he": "לוקסמבורג", "capital_en": "Luxembourg", "currency_he": "אירו", "currency_en": "Euro", "language_he": "לוקסמבורגית / צרפתית / גרמנית", "language_en": "Luxembourgish / French / German", "site_he": "העיר העתיקה של לוקסמבורג", "site_en": "Old Quarter of Luxembourg", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "מלטה", "name_en": "Malta", "code": "mt", "capital_he": "ולטה", "capital_en": "Valletta", "currency_he": "אירו", "currency_en": "Euro", "language_he": "מלטית / אנגלית", "language_en": "Maltese / English", "site_he": "ולטה העתיקה", "site_en": "Valletta", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "אסטוניה", "name_en": "Estonia", "code": "ee", "capital_he": "טאלין", "capital_en": "Tallinn", "currency_he": "אירו", "currency_en": "Euro", "language_he": "אסטונית", "language_en": "Estonian", "site_he": "העיר העתיקה בטאלין", "site_en": "Tallinn Old Town", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "לטביה", "name_en": "Latvia", "code": "lv", "capital_he": "ריגה", "capital_en": "Riga", "currency_he": "אירו", "currency_en": "Euro", "language_he": "לטבית", "language_en": "Latvian", "site_he": "העיר העתיקה בריגה", "site_en": "Riga Old Town", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "ליטא", "name_en": "Lithuania", "code": "lt", "capital_he": "וילנה", "capital_en": "Vilnius", "currency_he": "אירו", "currency_en": "Euro", "language_he": "ליטאית", "language_en": "Lithuanian", "site_he": "העיר העתיקה בווילנה", "site_en": "Vilnius Old Town", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "מונטנגרו", "name_en": "Montenegro", "code": "me", "capital_he": "פודגוריצה", "capital_en": "Podgorica", "currency_he": "אירו", "currency_en": "Euro", "language_he": "מונטנגרית", "language_en": "Montenegrin", "site_he": "מפרץ קוטור", "site_en": "Bay of Kotor", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "בוסניה והרצגובינה", "name_en": "Bosnia and Herzegovina", "code": "ba", "capital_he": "סרייבו", "capital_en": "Sarajevo", "currency_he": "מארק בוסני", "currency_en": "Convertible Mark", "language_he": "בוסנית / סרבית / קרואטית", "language_en": "Bosnian / Serbian / Croatian", "site_he": "הגשר הישן במוסטר", "site_en": "Old Bridge of Mostar", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "מקדוניה הצפונית", "name_en": "North Macedonia", "code": "mk", "capital_he": "סקופיה", "capital_en": "Skopje", "currency_he": "דנר מקדוני", "currency_en": "Macedonian Denar", "language_he": "מקדונית", "language_en": "Macedonian", "site_he": "אגם אוחריד", "site_en": "Lake Ohrid", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "קוסובו", "name_en": "Kosovo", "code": "xk", "capital_he": "פרישטינה", "capital_en": "Pristina", "currency_he": "אירו", "currency_en": "Euro", "language_he": "אלבנית / סרבית", "language_en": "Albanian / Serbian", "site_he": "פריזרן העתיקה", "site_en": "Prizren Old Town", "continent_he": "אירופה", "continent_en": "Europe"}, {"name_he": "בנגלדש", "name_en": "Bangladesh", "code": "bd", "capital_he": "דאקה", "capital_en": "Dhaka", "currency_he": "טאקה", "currency_en": "Taka", "language_he": "בנגלית", "language_en": "Bengali", "site_he": "סונדרבנס", "site_en": "Sundarbans", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "סרי לנקה", "name_en": "Sri Lanka", "code": "lk", "capital_he": "סרי ג׳ייוורדנפורה קוטה", "capital_en": "Sri Jayawardenepura Kotte", "currency_he": "רופי סרי לנקי", "currency_en": "Sri Lankan Rupee", "language_he": "סינהלית / טמילית", "language_en": "Sinhala / Tamil", "site_he": "סלע סיגיריה", "site_en": "Sigiriya Rock", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "מונגוליה", "name_en": "Mongolia", "code": "mn", "capital_he": "אולן בטור", "capital_en": "Ulaanbaatar", "currency_he": "טוגרוג", "currency_en": "Tögrög", "language_he": "מונגולית", "language_en": "Mongolian", "site_he": "מדבר גובי", "site_en": "Gobi Desert", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "מיאנמר", "name_en": "Myanmar", "code": "mm", "capital_he": "נייפידאו", "capital_en": "Naypyidaw", "currency_he": "קיאט", "currency_en": "Kyat", "language_he": "בורמזית", "language_en": "Burmese", "site_he": "פגודת שוודגון", "site_en": "Shwedagon Pagoda", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "קמבודיה", "name_en": "Cambodia", "code": "kh", "capital_he": "פנום פן", "capital_en": "Phnom Penh", "currency_he": "ריאל קמבודי", "currency_en": "Cambodian Riel", "language_he": "חמרית", "language_en": "Khmer", "site_he": "אנגקור ואט", "site_en": "Angkor Wat", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "לאוס", "name_en": "Laos", "code": "la", "capital_he": "ויינטיאן", "capital_en": "Vientiane", "currency_he": "קיפ", "currency_en": "Lao Kip", "language_he": "לאו", "language_en": "Lao", "site_he": "לואנג פרבאנג", "site_en": "Luang Prabang", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "בהוטן", "name_en": "Bhutan", "code": "bt", "capital_he": "טימפו", "capital_en": "Thimphu", "currency_he": "נגולטרום", "currency_en": "Ngultrum", "language_he": "דזונגקה", "language_en": "Dzongkha", "site_he": "מנזר קן הנמר", "site_en": "Tiger's Nest Monastery", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "מלדיביים", "name_en": "Maldives", "code": "mv", "capital_he": "מאלה", "capital_en": "Malé", "currency_he": "רופיה מלדיבית", "currency_en": "Maldivian Rufiyaa", "language_he": "דיבהי", "language_en": "Dhivehi", "site_he": "חופי המלדיביים", "site_en": "Maldives Beaches", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "ארמניה", "name_en": "Armenia", "code": "am", "capital_he": "ירוואן", "capital_en": "Yerevan", "currency_he": "דראם ארמני", "currency_en": "Armenian Dram", "language_he": "ארמנית", "language_en": "Armenian", "site_he": "מנזר חור ויראפ", "site_en": "Khor Virap Monastery", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "כווית", "name_en": "Kuwait", "code": "kw", "capital_he": "כווית סיטי", "capital_en": "Kuwait City", "currency_he": "דינר כוויתי", "currency_en": "Kuwaiti Dinar", "language_he": "ערבית", "language_en": "Arabic", "site_he": "מגדלי כווית", "site_en": "Kuwait Towers", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "עומאן", "name_en": "Oman", "code": "om", "capital_he": "מוסקט", "capital_en": "Muscat", "currency_he": "ריאל עומאני", "currency_en": "Omani Rial", "language_he": "ערבית", "language_en": "Arabic", "site_he": "המסגד הגדול סולטאן קאבוס", "site_en": "Sultan Qaboos Grand Mosque", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "בחריין", "name_en": "Bahrain", "code": "bh", "capital_he": "מנאמה", "capital_en": "Manama", "currency_he": "דינר בחרייני", "currency_en": "Bahraini Dinar", "language_he": "ערבית", "language_en": "Arabic", "site_he": "מצודת בחריין", "site_en": "Bahrain Fort", "continent_he": "אסיה", "continent_en": "Asia"}, {"name_he": "גאנה", "name_en": "Ghana", "code": "gh", "capital_he": "אקרה", "capital_en": "Accra", "currency_he": "סדי גנאי", "currency_en": "Ghanaian Cedi", "language_he": "אנגלית", "language_en": "English", "site_he": "טירת קייפ קוסט", "site_en": "Cape Coast Castle", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אוגנדה", "name_en": "Uganda", "code": "ug", "capital_he": "קמפלה", "capital_en": "Kampala", "currency_he": "שילינג אוגנדי", "currency_en": "Ugandan Shilling", "language_he": "אנגלית / סוואהילית", "language_en": "English / Swahili", "site_he": "הפארק הלאומי בווינדי", "site_en": "Bwindi National Park", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "רואנדה", "name_en": "Rwanda", "code": "rw", "capital_he": "קיגאלי", "capital_en": "Kigali", "currency_he": "פרנק רואנדי", "currency_en": "Rwandan Franc", "language_he": "קיניארואנדה / אנגלית / צרפתית", "language_en": "Kinyarwanda / English / French", "site_he": "פארק הרי הגעש", "site_en": "Volcanoes National Park", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "זמביה", "name_en": "Zambia", "code": "zm", "capital_he": "לוסקה", "capital_en": "Lusaka", "currency_he": "קוואצ׳ה זמבית", "currency_en": "Zambian Kwacha", "language_he": "אנגלית", "language_en": "English", "site_he": "מפלי ויקטוריה", "site_en": "Victoria Falls", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "מוזמביק", "name_en": "Mozambique", "code": "mz", "capital_he": "מפוטו", "capital_en": "Maputo", "currency_he": "מטיקל", "currency_en": "Metical", "language_he": "פורטוגזית", "language_en": "Portuguese", "site_he": "ארכיפלג בזארוטו", "site_en": "Bazaruto Archipelago", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אנגולה", "name_en": "Angola", "code": "ao", "capital_he": "לואנדה", "capital_en": "Luanda", "currency_he": "קוואנזה", "currency_en": "Kwanza", "language_he": "פורטוגזית", "language_en": "Portuguese", "site_he": "מפלי קלנדולה", "site_en": "Kalandula Falls", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "קמרון", "name_en": "Cameroon", "code": "cm", "capital_he": "יאונדה", "capital_en": "Yaoundé", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית / אנגלית", "language_en": "French / English", "site_he": "הר קמרון", "site_en": "Mount Cameroon", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אלג׳יריה", "name_en": "Algeria", "code": "dz", "capital_he": "אלג׳יר", "capital_en": "Algiers", "currency_he": "דינר אלג׳ירי", "currency_en": "Algerian Dinar", "language_he": "ערבית / אמאזיגית", "language_en": "Arabic / Amazigh", "site_he": "טיפאזה", "site_en": "Tipasa", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "מדגסקר", "name_en": "Madagascar", "code": "mg", "capital_he": "אנטננריבו", "capital_en": "Antananarivo", "currency_he": "אריארי", "currency_en": "Ariary", "language_he": "מלגשית / צרפתית", "language_en": "Malagasy / French", "site_he": "שדרת הבאובבים", "site_en": "Avenue of the Baobabs", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "מאוריציוס", "name_en": "Mauritius", "code": "mu", "capital_he": "פורט לואי", "capital_en": "Port Louis", "currency_he": "רופי מאוריצי", "currency_en": "Mauritian Rupee", "language_he": "אנגלית / צרפתית / קריאולית", "language_en": "English / French / Creole", "site_he": "שאמארל שבעת הצבעים", "site_en": "Seven Coloured Earths", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "בוצואנה", "name_en": "Botswana", "code": "bw", "capital_he": "גבורונה", "capital_en": "Gaborone", "currency_he": "פולה", "currency_en": "Pula", "language_he": "אנגלית / צוואנה", "language_en": "English / Tswana", "site_he": "דלתת האוקוונגו", "site_en": "Okavango Delta", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "נמיביה", "name_en": "Namibia", "code": "na", "capital_he": "וינדהוק", "capital_en": "Windhoek", "currency_he": "דולר נמיבי", "currency_en": "Namibian Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "דיונות סוסוסווליי", "site_en": "Sossusvlei Dunes", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "הרפובליקה הדמוקרטית של קונגו", "name_en": "Democratic Republic of the Congo", "code": "cd", "capital_he": "קינשאסה", "capital_en": "Kinshasa", "currency_he": "פרנק קונגולזי", "currency_en": "Congolese Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "הפארק הלאומי וירונגה", "site_en": "Virunga National Park", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "הרפובליקה של קונגו", "name_en": "Republic of the Congo", "code": "cg", "capital_he": "ברזוויל", "capital_en": "Brazzaville", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "הפארק הלאומי אודזאלה", "site_en": "Odzala National Park", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "מאלי", "name_en": "Mali", "code": "ml", "capital_he": "במקו", "capital_en": "Bamako", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "טימבוקטו", "site_en": "Timbuktu", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "בורקינה פאסו", "name_en": "Burkina Faso", "code": "bf", "capital_he": "ואגאדוגו", "capital_en": "Ouagadougou", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "חורבות לורופני", "site_en": "Loropéni Ruins", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "בנין", "name_en": "Benin", "code": "bj", "capital_he": "פורטו-נובו", "capital_en": "Porto-Novo", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "הארמונות המלכותיים באבומיי", "site_en": "Royal Palaces of Abomey", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "טוגו", "name_en": "Togo", "code": "tg", "capital_he": "לומה", "capital_en": "Lomé", "currency_he": "פרנק CFA", "currency_en": "CFA Franc", "language_he": "צרפתית", "language_en": "French", "site_he": "קוטאמקו", "site_en": "Koutammakou", "continent_he": "אפריקה", "continent_en": "Africa"}, {"name_he": "אורוגוואי", "name_en": "Uruguay", "code": "uy", "capital_he": "מונטווידאו", "capital_en": "Montevideo", "currency_he": "פסו אורוגוואי", "currency_en": "Uruguayan Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "קולוניה דל סקרמנטו", "site_en": "Colonia del Sacramento", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "פרגוואי", "name_en": "Paraguay", "code": "py", "capital_he": "אסונסיון", "capital_en": "Asunción", "currency_he": "גוארני", "currency_en": "Guaraní", "language_he": "ספרדית / גוארני", "language_en": "Spanish / Guaraní", "site_he": "מפלי איגואסו באזור הגבול", "site_en": "Iguazu Area", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "בוליביה", "name_en": "Bolivia", "code": "bo", "capital_he": "סוקרה", "capital_en": "Sucre", "currency_he": "בוליביאנו", "currency_en": "Boliviano", "language_he": "ספרדית ועוד", "language_en": "Spanish and others", "site_he": "סלאר דה אויוני", "site_en": "Salar de Uyuni", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "אקוודור", "name_en": "Ecuador", "code": "ec", "capital_he": "קיטו", "capital_en": "Quito", "currency_he": "דולר אמריקאי", "currency_en": "US Dollar", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "איי גלאפגוס", "site_en": "Galápagos Islands", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ונצואלה", "name_en": "Venezuela", "code": "ve", "capital_he": "קראקס", "capital_en": "Caracas", "currency_he": "בוליבר", "currency_en": "Bolívar", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "מפלי אנחל", "site_en": "Angel Falls", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "גיאנה", "name_en": "Guyana", "code": "gy", "capital_he": "ג׳ורג׳טאון", "capital_en": "Georgetown", "currency_he": "דולר גיאני", "currency_en": "Guyanese Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "מפלי קאיטור", "site_en": "Kaieteur Falls", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "סורינאם", "name_en": "Suriname", "code": "sr", "capital_he": "פרמריבו", "capital_en": "Paramaribo", "currency_he": "דולר סורינאמי", "currency_en": "Surinamese Dollar", "language_he": "הולנדית", "language_en": "Dutch", "site_he": "המרכז ההיסטורי של פרמריבו", "site_en": "Historic Inner City of Paramaribo", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "בליז", "name_en": "Belize", "code": "bz", "capital_he": "בלמופן", "capital_en": "Belmopan", "currency_he": "דולר בליזי", "currency_en": "Belize Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "החור הכחול הגדול", "site_en": "Great Blue Hole", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "גואטמלה", "name_en": "Guatemala", "code": "gt", "capital_he": "גואטמלה סיטי", "capital_en": "Guatemala City", "currency_he": "קצאל", "currency_en": "Quetzal", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "טיקאל", "site_en": "Tikal", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "הונדורס", "name_en": "Honduras", "code": "hn", "capital_he": "טגוסיגלפה", "capital_en": "Tegucigalpa", "currency_he": "למפירה", "currency_en": "Lempira", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "חורבות קופאן", "site_en": "Copán Ruins", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "אל סלוודור", "name_en": "El Salvador", "code": "sv", "capital_he": "סן סלוודור", "capital_en": "San Salvador", "currency_he": "דולר אמריקאי / ביטקוין", "currency_en": "US Dollar / Bitcoin", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "חויה דה סרן", "site_en": "Joya de Cerén", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ניקרגואה", "name_en": "Nicaragua", "code": "ni", "capital_he": "מנגואה", "capital_en": "Managua", "currency_he": "קורדובה", "currency_en": "Córdoba", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "האי אומטפה", "site_en": "Ometepe Island", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "הרפובליקה הדומיניקנית", "name_en": "Dominican Republic", "code": "do", "capital_he": "סנטו דומינגו", "capital_en": "Santo Domingo", "currency_he": "פסו דומיניקני", "currency_en": "Dominican Peso", "language_he": "ספרדית", "language_en": "Spanish", "site_he": "האזור הקולוניאלי בסנטו דומינגו", "site_en": "Colonial Zone of Santo Domingo", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "האיטי", "name_en": "Haiti", "code": "ht", "capital_he": "פורט-או-פרנס", "capital_en": "Port-au-Prince", "currency_he": "גורד", "currency_en": "Gourde", "language_he": "צרפתית / קריאולית האיטית", "language_en": "French / Haitian Creole", "site_he": "מצודת לה פרייר", "site_en": "Citadelle Laferrière", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "בהאמה", "name_en": "Bahamas", "code": "bs", "capital_he": "נסאו", "capital_en": "Nassau", "currency_he": "דולר בהאמי", "currency_en": "Bahamian Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "איי אקסומה", "site_en": "Exuma Cays", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ברבדוס", "name_en": "Barbados", "code": "bb", "capital_he": "ברידג׳טאון", "capital_en": "Bridgetown", "currency_he": "דולר ברבדיאני", "currency_en": "Barbadian Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "ברידג׳טאון ההיסטורית", "site_en": "Historic Bridgetown", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "אנטיגואה וברבודה", "name_en": "Antigua and Barbuda", "code": "ag", "capital_he": "סנט ג׳ונס", "capital_en": "Saint John's", "currency_he": "דולר מזרח קריבי", "currency_en": "East Caribbean Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "מספנת נלסון", "site_en": "Nelson's Dockyard", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "דומיניקה", "name_en": "Dominica", "code": "dm", "capital_he": "רוזו", "capital_en": "Roseau", "currency_he": "דולר מזרח קריבי", "currency_en": "East Caribbean Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "האגם הרותח", "site_en": "Boiling Lake", "continent_he": "אמריקה", "continent_en": "Americas"}, {"name_he": "ונואטו", "name_en": "Vanuatu", "code": "vu", "capital_he": "פורט וילה", "capital_en": "Port Vila", "currency_he": "ואטו", "currency_en": "Vatu", "language_he": "ביסלמה / אנגלית / צרפתית", "language_en": "Bislama / English / French", "site_he": "הר הגעש יסעור", "site_en": "Mount Yasur", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "איי שלמה", "name_en": "Solomon Islands", "code": "sb", "capital_he": "הוניארה", "capital_en": "Honiara", "currency_he": "דולר איי שלמה", "currency_en": "Solomon Islands Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "לגונת מרובו", "site_en": "Marovo Lagoon", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "נאורו", "name_en": "Nauru", "code": "nr", "capital_he": "יארן", "capital_en": "Yaren", "currency_he": "דולר אוסטרלי", "currency_en": "Australian Dollar", "language_he": "נאורואנית / אנגלית", "language_en": "Nauruan / English", "site_he": "לגונת בואדה", "site_en": "Buada Lagoon", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "פלאו", "name_en": "Palau", "code": "pw", "capital_he": "נגרולמוד", "capital_en": "Ngerulmud", "currency_he": "דולר אמריקאי", "currency_en": "US Dollar", "language_he": "פלאואנית / אנגלית", "language_en": "Palauan / English", "site_he": "איי הסלעים", "site_en": "Rock Islands", "continent_he": "אוקיאניה", "continent_en": "Oceania"}, {"name_he": "מיקרונזיה", "name_en": "Micronesia", "code": "fm", "capital_he": "פליקיר", "capital_en": "Palikir", "currency_he": "דולר אמריקאי", "currency_en": "US Dollar", "language_he": "אנגלית", "language_en": "English", "site_he": "נאן מדול", "site_en": "Nan Madol", "continent_he": "אוקיאניה", "continent_en": "Oceania"}];
+const games=[
+{id:"flagToCountry",title:"דגל → מדינה",emoji:"🏳️",desc:"מזהים מדינה לפי הדגל",feature:"flag"},
+{id:"countryToFlag",title:"מדינה → דגל",emoji:"🌎",desc:"מזהים דגל לפי מדינה",feature:"flag"},
+{id:"capital",title:"בירות",emoji:"🏛️",desc:"מה עיר הבירה?",feature:"capital"},
+{id:"currency",title:"מטבעות",emoji:"💰",desc:"מה המטבע?",feature:"currency"},
+{id:"language",title:"שפות",emoji:"🗣️",desc:"איזו שפה?",feature:"language"},
+{id:"site",title:"אתרי תיירות",emoji:"📸",desc:"איזה אתר שייך למדינה?",feature:"site"},
+{id:"continent",title:"יבשות",emoji:"🗺️",desc:"באיזו יבשת נמצאת המדינה?",feature:"continent"},
+{id:"mixed",title:"אליפות העולם",emoji:"🎲",desc:"שאלות מכל הסוגים",feature:"mixed"},
+{id:"challenge",title:"אתגר מהיר",emoji:"⚡",desc:"10 שניות לכל שאלה",feature:"mixed"},
+{id:"survival",title:"הישרדות",emoji:"💀",desc:"3 טעויות נועלות את המשחק",feature:"mixed"},
+{id:"expert",title:"מצב מומחה",emoji:"🧠",desc:"בלי אפשרויות — כותבים תשובה",feature:"mixed"}
+];
+const featureNames={flag:"דגל",currency:"מטבע",language:"שפה",capital:"עיר בירה",site:"אתר תיירות",continent:"יבשת"};
+const allFeatures=["flag","currency","language","capital","site","continent"];
+const ranks=["מטייל מתחיל","תרמילאי","חוקר יבשות","שגריר עולמי","כובש יבשות","אלוף העולם"];
+const baseProgress={xp:0,coins:0,correct:0,wrong:0,games:0,wins:0,best:0,streak:1,lastDay:"",features:{},achievements:[],ownedThemes:["ocean"],dailySpin:"",winsByGame:{},locks:{},avatar:"🧭",dailyMissionClaimed:"",shownContinentTrophies:[],hints:0,skips:0,freezes:0,lives:0,treasureOpenedAt:0,passportStamps:[],passportBonusLevel:0,passportCompleted:false};
+let players={},currentPlayer="",progress,selectedGame="",activeMode="",questions=[],qIndex=0,score=0,timer=30,timerInterval=null,questionTime=parseInt(localStorage.getItem("questionTime")||"30");
+let layout=localStorage.getItem("layout")||"grid",theme=localStorage.getItem("theme")||"ocean",soundOn=localStorage.getItem("soundOn")!=="false",bgMusicOn=localStorage.getItem("bgMusicOn")==="true",cameFromGameToSettings=false,currentCorrect="",currentMistakes=0,bgCtx=null,bgNodes=[];
+const LIFE_COST=25, LOCK_MS=30*60*1000;
+function maxMistakes(){return (selectedGame==="flagToCountry"||selectedGame==="countryToFlag")?5:3;}
+
+function flagUrl(c){return "https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/flags/4x3/"+c.toLowerCase()+".svg"}
+function flagUrl2(c){return "https://unpkg.com/flag-icons@7.2.3/flags/4x3/"+c.toLowerCase()+".svg"}
+function flagUrl3(c){return "https://unpkg.com/flag-icons@7.2.3/flags/4x3/"+c.toLowerCase()+".svg"}
+function makeFlagImg(code,cls){
+  const c=code.toLowerCase();
+  const emoji=c.replace(/./g,ch=>String.fromCodePoint(ch.charCodeAt(0)+127397));
+  return `<img class="${cls}" src="${flagUrl(c)}" referrerpolicy="no-referrer"
+    onerror="this.onerror=null;this.src='${flagUrl2(c)}';this.onerror=function(){this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<span style=\\'font-size:48px;line-height:1\\'>${emoji}</span>')}"
+    alt="${code}">`;
+}
+function siteImg(c){return ""}
+const avatars=["🧭","🌍","✈️","🗺️","🏕️","👑","🦁","🚀","🏆","🎒"];
+function v(o,k){return o[k+"_he"]||o[k]}
+function cloneBase(){return JSON.parse(JSON.stringify(baseProgress))}
+function normalizeProgress(p){p.features=p.features||{};p.achievements=p.achievements||[];p.earnedAchievements=p.earnedAchievements||[];p.claimedAchievements=p.claimedAchievements&&!Array.isArray(p.claimedAchievements)?p.claimedAchievements:{};p.ownedThemes=p.ownedThemes||["ocean"];p.winsByGame=p.winsByGame||{};p.locks=p.locks||{};p.avatar=p.avatar||"🧭";p.shownContinentTrophies=p.shownContinentTrophies||[];p.hints=p.hints||0;p.skips=p.skips||0;p.freezes=p.freezes||0;p.treasureOpenedAt=p.treasureOpenedAt||0;return p}
+function loadPlayers(){players=JSON.parse(localStorage.getItem("aroundWorldPlayers21")||"{}");currentPlayer=localStorage.getItem("aroundWorldCurrentPlayer")||""}
+function savePlayers(){if(currentPlayer)players[currentPlayer]=progress;localStorage.setItem("aroundWorldPlayers21",JSON.stringify(players));localStorage.setItem("aroundWorldCurrentPlayer",currentPlayer)}
+function renderLogin(){
+ loadPlayers();
+ let box=document.getElementById("playersList");
+ box.innerHTML="";
+ let names=Object.keys(players);
+ if(names.length){
+   names.forEach(n=>{
+     let p=normalizeProgress(players[n]), col=completedCountries(p).length;
+     box.innerHTML+=`<div class="card player-card" onclick="selectPlayer('${escapeAttr(n)}')">
+       <h3>${n}</h3>
+       <p>רמה ${Math.floor(p.xp/120)+1} · ${p.coins} מטבעות</p>
+       <p>${col}/${countries.length} מדינות נאספו</p>
+       <button class="bad" onclick="deletePlayer(event,'${escapeAttr(n)}')">מחק שחקן</button>
+     </div>`;
+   });
+ }else{
+   box.innerHTML='<div class="panel">אין עדיין שחקנים. כתוב שם ונתחיל.</div>';
+ }
+}
+function escapeAttr(s){return String(s).replace(/'/g,"\\'").replace(/"/g,"&quot;")}
+function createPlayer(){let name=document.getElementById("playerNameInput").value.trim();if(!name){showToast("צריך לכתוב שם שחקן","bad");return}loadPlayers();if(!players[name])players[name]=cloneBase();currentPlayer=name;progress=normalizeProgress(players[name]);updateDaily();savePlayers();enterHome()}
+function selectPlayer(name){loadPlayers();currentPlayer=name;progress=normalizeProgress(players[name]||cloneBase());updateDaily();savePlayers();enterHome()}
+function deletePlayer(ev,name){
+ ev.stopPropagation();
+ if(!confirm("למחוק את השחקן "+name+" וכל ההתקדמות שלו?")) return;
+ loadPlayers();
+ delete players[name];
+ if(currentPlayer===name){currentPlayer="";localStorage.removeItem("aroundWorldCurrentPlayer");}
+ localStorage.setItem("aroundWorldPlayers21",JSON.stringify(players));
+ renderLogin();
+}
+function showLogin(){clearInterval(timerInterval);showScreen("loginScreen");renderLogin()}
+function enterHome(){document.getElementById("playerNameText").textContent=currentPlayer;showScreen("homeScreen")}
+function showScreen(id){document.querySelectorAll("section").forEach(s=>s.classList.add("hidden"));document.getElementById(id).classList.remove("hidden");if(id==="homeScreen")renderHome();if(id==="gamesScreen")renderGames();if(id==="collectionScreen")renderCollection();if(id==="achievementsScreen")renderAchievements();if(id==="shopScreen")renderShop();if(id==="passportScreen")renderPassport();if(id==="leaderboardScreen")renderLeaderboard();if(id==="statsScreen")renderStats();if(id==="loginScreen")renderLogin();if(id==="settingsScreen")renderAvatarChoices()}
+function renderAvatarChoices(){const box=document.getElementById("avatarChoices");if(!box||typeof progress==="undefined")return;const current=progress.avatar||"🧭";const prev=document.getElementById("currentAvatarPreview");if(prev)prev.textContent=current;const avatarCategories=[{label:"🧭 חוקרים",items:["🧭","🗺️","✈️","🚀","🛸","⛵","🏕️","🎒","🔭","🧳"]},{label:"🦁 חיות",items:["🦁","🐯","🐻","🦊","🐺","🦅","🦋","🐬","🦒","🐘"]},{label:"👑 דמויות",items:["👑","🧙","🥷","🦸","🧝","🧜","🤴","👸","🧑‍🚀","🕵️"]},{label:"🏆 ספורט",items:["🏆","⚽","🏀","🎯","🏊","🧗","🏇","🎾","🥊","⛷️"]},{label:"🌍 עולם",items:["🌍","🌎","🌏","🗽","🗼","🏰","⛩️","🕌","🛕","🗿"]},{label:"😎 פרצופים",items:["😎","🤩","🥳","😈","🤖","👽","🎭","🦄","🐲","💎"]}];box.innerHTML=avatarCategories.map(cat=>`<div style="margin-bottom:12px"><div style="font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:700">${cat.label}</div><div style="display:flex;flex-wrap:wrap;gap:5px;justify-content:center">${cat.items.map(a=>`<button class="avatarChoice ${a===current?"selected":""}" onclick="setAvatar('${a}')" style="min-width:44px;padding:6px">${a}</button>`).join("")}</div></div>`).join("");}
+function setAvatar(a){if(typeof progress==="undefined")return;progress.avatar=a;savePlayers();renderAvatarChoices();const h=document.getElementById("homeAvatar");if(h)h.textContent=a;}
+function level(){return Math.floor(progress.xp/120)+1} 
+function rank(){return ranks[Math.min(ranks.length-1,Math.floor((level()-1)/5))]} 
+function completedCountries(p=progress){return countries.filter(c=>isCountryComplete(c.code,p))}
+function isCountryComplete(code,p=progress){let f=p.features?.[code]||{};return allFeatures.every(x=>f[x])}
+function pct(){return Math.round(completedCountries().length/countries.length*100)}
+function continentBase(c){let x=v(c,"continent"); if(x.includes("אירופה"))return"Europe"; if(x.includes("אסיה"))return"Asia"; if(x.includes("אפריקה"))return"Africa"; if(x.includes("אמריקה"))return"Americas"; return"Oceania"}
+function counts(){let all={Europe:0,Asia:0,Africa:0,Americas:0,Oceania:0}, got={Europe:0,Asia:0,Africa:0,Americas:0,Oceania:0};countries.forEach(c=>{let b=continentBase(c);all[b]++;if(isCountryComplete(c.code))got[b]++});return{all,got}}
+function renderHome(){document.getElementById("homeAvatar").textContent=progress.avatar||"🧭";renderDailyMission();document.getElementById("playerNameText").textContent=currentPlayer;document.getElementById("levelText").textContent=level();document.getElementById("rankText").textContent=rank();document.getElementById("xpText").textContent=progress.xp;document.getElementById("coinsText").textContent=progress.coins;document.getElementById("streakText").textContent=progress.streak;document.getElementById("completionText").textContent=pct()+"%";document.getElementById("worldBar").style.width=pct()+"%";const xpNext=document.getElementById("xpToNextText");if(xpNext){const needed=level()*120;const have=progress.xp;xpNext.textContent=`עוד ${needed-have} לרמה ${level()+1}`}setC("Europe","cEurope",".europeLand");setC("Asia","cAsia",".asiaLand");setC("Africa","cAfrica",".africaLand");setC("Americas","cAmericas",".americasLand");setC("Oceania","cOceania",".oceaniaLand");renderPins();checkAchievements();savePlayers()}
+function setC(k,id,sel){let c=counts();document.getElementById(id).textContent=`${c.got[k]}/${c.all[k]}`;let el=document.querySelector(sel);if(!el)return;el.classList.remove("done","partial");if(c.got[k]===c.all[k]&&c.all[k]>0)el.classList.add("done");else if(c.got[k]>0)el.classList.add("partial")}
+function renderPins(){document.querySelectorAll(".pin").forEach(p=>p.remove());let map=document.getElementById("worldMap");completedCountries().forEach((c,i)=>{let b=continentBase(c);let base={Europe:[52,20],Asia:[70,30],Africa:[58,50],Americas:[23,36],Oceania:[81,67]}[b];let pin=document.createElement("div");pin.className="pin";pin.style.left=(base[0]+((i*7)%12)-6)+"%";pin.style.top=(base[1]+((i*5)%10)-5)+"%";map.appendChild(pin)})}
+function getLock(gameId){let l=progress.locks?.[gameId];if(!l)return null;if(l.lockedUntil && Date.now()<l.lockedUntil)return l;if(l.lockedUntil && Date.now()>=l.lockedUntil){progress.locks[gameId]={mistakes:0,lockedUntil:0};savePlayers();return null}return null}
+function lockText(gameId){let l=getLock(gameId);if(!l)return"";let mins=Math.ceil((l.lockedUntil-Date.now())/60000);return `נעול לעוד ${mins} דקות`}
+function renderGames(){let box=document.getElementById("gamesBox");box.innerHTML="";box.className=layout==="list"?"list-view":"grid";games.forEach(g=>{let locked=getLock(g.id);let mistakes=progress.locks?.[g.id]?.mistakes||0;let mx=(g.id==="flagToCountry"||g.id==="countryToFlag")?5:3;let flagWarning=(g.id==="flagToCountry"||g.id==="countryToFlag")?`<p style="font-size:12px;color:var(--gold)">📶 חייב חיבור לאינטרנט</p>`:"";box.innerHTML+=`<div class="card game-card ${locked?"locked":""}"><div class="emoji">${g.emoji}</div><h3>${g.title}</h3><p>${g.desc}</p>${flagWarning}<p>טעויות: ${mistakes}/${mx}</p>${locked?`<p class="danger">${lockText(g.id)}</p><button class="gold" onclick="buyUnlock('${g.id}')">קנה חיים ${LIFE_COST} 🪙</button>`:`<button onclick="openRules('${g.id}')">התחל</button>`}</div>`})}
+function buyUnlock(gameId){if(progress.coins<LIFE_COST){showToast("אין מספיק מטבעות 🪙","bad");return}progress.coins-=LIFE_COST;progress.locks[gameId]={mistakes:0,lockedUntil:0};savePlayers();renderGames();renderHome()}
+function openRules(id){if(getLock(id)){showToast("המשחק נעול. קנה חיים או חכה 🔒","bad");return}
+if((id==="flagToCountry"||id==="countryToFlag")&&!navigator.onLine){
+  showToast("אנא ודא את החיבור לרשת 📶","bad");return;
+}
+selectedGame=id;
+// Skip rules if user checked "don't show again"
+if(localStorage.getItem("dontShowRules")==="true"){startGame();return;}
+const g=games.find(x=>x.id===id);const mx=(id==="flagToCountry"||id==="countryToFlag")?5:3;document.getElementById("rulesText").innerHTML=`<b>${g.title}</b><br>במשחק הזה מותר לטעות עד <b>${mx} טעויות</b>. אם תגיע ל־${mx} טעויות, המשחק הזה יינעל לחצי שעה.<br>אפשר לקנות חיים ב־${LIFE_COST} מטבעות.<br><br>מדינה נאספת רק אחרי שהשלמת עליה: דגל, מטבע, שפה, עיר בירה, אתר תיירות ויבשת.`;
+const cb=document.getElementById("dontShowRules");if(cb)cb.checked=false;
+showScreen("rulesScreen")}
+function startGame(){if(getLock(selectedGame)){showScreen("gamesScreen");return}
+if((selectedGame==="flagToCountry"||selectedGame==="countryToFlag")&&!navigator.onLine){
+  showToast("אנא ודא את החיבור לרשת 📶","bad");showScreen("gamesScreen");return;
+}qIndex=0;score=0;currentMistakes=0;questions=shuffle([...countries]).slice(0,10);document.getElementById("totalQText").textContent=questions.length;document.getElementById("modeName").textContent=games.find(g=>g.id===selectedGame).title;document.getElementById("gamePlayerName").textContent=currentPlayer;const mxEl=document.getElementById("maxMistakesText");if(mxEl)mxEl.textContent=maxMistakes();showScreen("gameScreen");loadQuestion()}
+function chooseMode(){if(["mixed","challenge","survival"].includes(selectedGame))return shuffle(["flagToCountry","countryToFlag","capital","currency","language","site","continent"])[0];if(selectedGame==="expert")return shuffle(["capital","currency","language","site","continent"])[0];return selectedGame}
+function featureForMode(mode){if(mode==="flagToCountry"||mode==="countryToFlag")return"flag";return mode}
+
+function getOptionsForType(type, correct){
+ let values=[];
+ if(type==="flag") values=countries.map(c=>c.code);
+ else values=countries.map(c=>v(c,type)).filter(Boolean);
+ values=[...new Set(values)].filter(x=>x!==correct);
+ values=shuffle(values).slice(0,3);
+ return shuffle([correct,...values]).slice(0,4);
+}
+function loadQuestionCore(){
+ clearInterval(timerInterval);
+ document.getElementById("errorBox").textContent="";
+ if(qIndex>=questions.length){finishGame();return;}
+ if(qIndex>0&&qIndex%4===0){
+   try{surpriseCard();}catch(e){}
+ }else{
+   document.getElementById("surpriseBox").classList.add("hidden");
+ }
+ activeMode=chooseMode();
+ let q=questions[qIndex];
+ let feature=featureForMode(activeMode);
+ let typeForAnswers = activeMode==="countryToFlag" ? "flag" : activeMode==="flagToCountry" ? "name" : feature;
+
+ document.getElementById("qText").textContent=qIndex+1;
+ document.getElementById("scoreText").textContent=score;
+ document.getElementById("mistakesText").textContent=currentMistakes;
+ document.getElementById("hintCount").textContent=progress.hints||0;
+ document.getElementById("skipCount").textContent=progress.skips||0;
+ document.getElementById("freezeCount").textContent=progress.freezes||0;
+ document.getElementById("messageBox").textContent="";
+ document.getElementById("flagBox").innerHTML="";
+ document.getElementById("answersBox").innerHTML="";
+ document.getElementById("expertInput").classList.add("hidden");
+ document.getElementById("expertBtn").classList.add("hidden");
+
+ if(activeMode==="flagToCountry"){
+   currentCorrect=v(q,"name");
+   document.getElementById("flagBox").innerHTML=makeFlagImg(q.code,"flag-img");
+   document.getElementById("questionText").textContent="איזו מדינה שייכת לדגל הזה?";
+ }
+ else if(activeMode==="countryToFlag"){
+   currentCorrect=q.code;
+   document.getElementById("questionText").textContent="איזה דגל שייך ל"+v(q,"name")+"?";
+ }
+ else if(activeMode==="site"){
+   currentCorrect=v(q,"site");
+   document.getElementById("questionText").textContent="איזה אתר תיירות שייך ל"+v(q,"name")+"?";
+ }
+ else{
+   let labels={capital:"מה עיר הבירה של ",currency:"מה המטבע של ",language:"איזו שפה מדברים ב",continent:"באיזו יבשת נמצאת "};
+   currentCorrect=v(q,activeMode);
+   document.getElementById("questionText").textContent=(labels[activeMode]||"מה התשובה של ")+v(q,"name")+"?";
+ }
+
+ if(selectedGame==="expert" && activeMode!=="countryToFlag" && activeMode!=="flagToCountry"){
+   document.getElementById("expertInput").classList.remove("hidden");
+   document.getElementById("expertBtn").classList.remove("hidden");
+   document.getElementById("expertInput").value="";
+   document.getElementById("expertInput").focus();
+ }else{
+   createAnswers(currentCorrect,typeForAnswers);
+ }
+ startTimer()
+}
+function loadQuestion(){try{loadQuestionCore()}catch(e){document.getElementById("errorBox").textContent="שגיאה במשחק: "+e.message;console.error(e)}}
+function createAnswers(correct,type){
+ currentCorrect=correct;
+ const box=document.getElementById("answersBox");
+ box.innerHTML="";
+ let opts=getOptionsForType(type, correct);
+ while(opts.length<4){opts.push("אפשרות "+(opts.length+1));}
+ opts.forEach(o=>{
+   const b=document.createElement("button");
+   b.className="answer";
+   b.dataset.answer=o;
+   if(type==="flag"){
+     b.innerHTML=makeFlagImg(o,"flag-option");
+   }else{
+     b.textContent=o;
+   }
+   b.onclick=()=>checkAnswer(b,o,correct);
+   box.appendChild(b);
+ });
+}
+function submitExpert(){
+  const ans=document.getElementById("expertInput").value.trim();
+  if(!ans){document.getElementById("messageBox").textContent="כתוב תשובה תחילה";return;}
+  // Check for close typo (within 2 chars edit distance)
+  const norm_ans=normalize(ans), norm_correct=normalize(currentCorrect);
+  if(norm_ans!==norm_correct){
+    // simple similarity check
+    const longer=Math.max(norm_ans.length,norm_correct.length);
+    let diff=0;
+    for(let i=0;i<longer;i++){if(norm_ans[i]!==norm_correct[i])diff++;}
+    const typo=longer>3 && diff<=2;
+    if(typo){
+      document.getElementById("messageBox").textContent=`כמעט! בדוק איות — התשובה: ${currentCorrect}`;
+      document.getElementById("expertInput").style.borderColor="var(--gold)";
+      document.getElementById("expertInput").focus();
+      return;
+    }
+  }
+  document.getElementById("expertInput").style.borderColor="";
+  checkAnswer(null,ans,currentCorrect,true);
+}
+function normalize(s){return String(s).trim().toLowerCase().replace(/[׳']/g,"").replace(/\s+/g," ")}
+function checkAnswer(btn,sel,correct,expert=false){clearInterval(timerInterval);let ok=expert?normalize(sel)===normalize(correct):sel===correct;if(!expert)document.querySelectorAll(".answer").forEach(b=>b.disabled=true);if(ok){if(btn)btn.classList.add("correct");score+=selectedGame==="challenge"?2:1;progress.correct++;let msg=rewardFeature(questions[qIndex],featureForMode(activeMode));addDailyMissionProgress();playSound("good");document.getElementById("messageBox").textContent="נכון! "+msg}else{progress.wrong++;currentMistakes++;document.getElementById("mistakesText").textContent=currentMistakes;playSound("bad");if(btn)btn.classList.add("wrong");reveal(correct);document.getElementById("messageBox").textContent="לא נכון. התשובה: "+correct;if(currentMistakes>=maxMistakes()){lockCurrentGame();return}}savePlayers();setTimeout(()=>{qIndex++;loadQuestion()},1500)}
+function rewardFeature(c,feature){
+ if(!progress.features[c.code])progress.features[c.code]={};
+ let completedBefore=isCountryComplete(c.code);
+ progress.features[c.code][feature]=true;
+ if(feature==="site") addPassportStamp(c);
+ // Accumulate in pending — don't commit yet
+ let coins=3, xp=6;
+ pendingCoins+=coins; pendingXP+=xp;
+ // Show running total in topbar without saving
+ progress.coins+=coins; progress.xp+=xp;
+ let msg=`+${coins} מטבעות +${xp} XP`;
+ let completedAfter=isCountryComplete(c.code);
+ if(!completedBefore&&completedAfter){
+   msg+=` · המדינה ${v(c,"name")} הושלמה! 🏆`;
+   setTimeout(()=>checkContinentTrophyAnimation(),1700);
+ }
+ return msg;
+}
+function lockCurrentGame(){clearInterval(timerInterval);if(!progress.locks)progress.locks={};progress.locks[selectedGame]={mistakes:3,lockedUntil:Date.now()+LOCK_MS};savePlayers();showLockOverlay();}
+function showLockOverlay(){
+  let el=document.getElementById("lockOverlay");
+  if(!el){el=document.createElement("div");el.id="lockOverlay";document.body.appendChild(el);}
+  el.innerHTML=`
+    <div class="lockBox">
+      <div style="font-size:56px;margin-bottom:10px">🔒</div>
+      <h2 style="color:#ff4757;margin-bottom:8px">המשחק ננעל!</h2>
+      <p style="color:#8ab8e8;margin-bottom:6px">הגעת ל־3 טעויות.</p>
+      <p style="color:#e8f4ff;font-size:18px;font-weight:700;margin-bottom:18px">המשחק ננעל לחצי שעה</p>
+      <div id="lockTimer" style="font-size:28px;font-weight:900;color:#ffc107;margin-bottom:20px;font-variant-numeric:tabular-nums">30:00</div>
+      <div style="margin-bottom:18px;color:#8ab8e8">יש לך <b style="color:#ffc107">${progress.coins} 🪙</b> מטבעות</div>
+      <button onclick="buyUnlockOverlay()" style="background:linear-gradient(135deg,#ffc107,#e6a500);color:#111;font-size:17px;font-weight:900;padding:13px 28px;border-radius:16px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(255,193,7,.4);width:100%;margin-bottom:10px">
+        ❤️ קנה חיים — 25 🪙
+      </button>
+      <button onclick="closeLockOverlay()" style="background:rgba(255,255,255,.08);color:#8ab8e8;font-size:15px;font-weight:700;padding:10px 20px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;width:100%">
+        חזרה לתפריט
+      </button>
+    </div>`;
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:overlayIn .3s ease";
+  // live countdown
+  const lockedUntil=progress.locks[selectedGame].lockedUntil;
+  const iv=setInterval(()=>{
+    const rem=lockedUntil-Date.now();
+    const timerEl=document.getElementById("lockTimer");
+    if(!timerEl||rem<=0){clearInterval(iv);if(timerEl)timerEl.textContent="00:00";return;}
+    const m=Math.floor(rem/60000),s=Math.floor((rem%60000)/1000);
+    timerEl.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  },500);
+  el._iv=iv;
+}
+function buyUnlockOverlay(){
+  if(progress.coins<LIFE_COST){
+    const coins=document.querySelector("#lockOverlay .lockBox div:nth-child(5)");
+    if(coins)coins.style.animation="shake .4s ease";
+    showToast("אין מספיק מטבעות 🪙","bad");return;
+  }
+  progress.coins-=LIFE_COST;
+  progress.locks[selectedGame]={mistakes:0,lockedUntil:0};
+  currentMistakes=0;
+  savePlayers();
+  closeLockOverlay();
+  document.getElementById("mistakesText").textContent=0;
+  document.getElementById("messageBox").textContent="קנית חיים! המשחק ממשיך 💪";
+  setTimeout(()=>{qIndex++;loadQuestion();},1000);
+}
+function closeLockOverlay(){
+  const el=document.getElementById("lockOverlay");
+  if(!el)return;
+  if(el._iv)clearInterval(el._iv);
+  el.remove();
+  finishGame(true);
+}
+function buyLifeInGame(){
+ if(currentMistakes<=0){showToast("אין טעויות להוריד","bad");return}
+ if((progress.lives||0)>0){
+   progress.lives--;
+   currentMistakes--;
+   document.getElementById("mistakesText").textContent=currentMistakes;
+   savePlayers();
+   document.getElementById("messageBox").textContent="השתמשת בחיים מהמלאי!";
+   return;
+ }
+ if(progress.coins<LIFE_COST){showToast("אין מספיק מטבעות 🪙","bad");return}
+ progress.coins-=LIFE_COST;
+ currentMistakes--;
+ document.getElementById("mistakesText").textContent=currentMistakes;
+ savePlayers();
+ document.getElementById("messageBox").textContent="קנית חיים! ירדת לטעות אחת פחות.";
+}
+function useHint(){
+  if((progress.hints||0)<=0){showNoItemOverlay("hint");return}
+  progress.hints--;savePlayers();
+  let wrong=[...document.querySelectorAll(".answer")].filter(b=>b.dataset.answer!==currentCorrect&&!b.disabled);
+  wrong.slice(0,2).forEach(b=>{b.disabled=true;b.style.opacity=.35});
+  document.getElementById("hintCount").textContent=progress.hints;
+  document.getElementById("messageBox").textContent="רמז הופעל: שתי תשובות לא נכונות נעלמו.";
+}
+function useSkip(){
+  if((progress.skips||0)<=0){showNoItemOverlay("skip");return}
+  progress.skips--;savePlayers();
+  document.getElementById("skipCount").textContent=progress.skips;
+  document.getElementById("messageBox").textContent="דילגת על השאלה.";
+  setTimeout(()=>{qIndex++;loadQuestion()},600);
+}
+function useFreeze(){
+  if((progress.freezes||0)<=0){showNoItemOverlay("freeze");return}
+  progress.freezes--;savePlayers();
+  document.getElementById("freezeCount").textContent=progress.freezes;
+  clearInterval(timerInterval);
+  document.getElementById("messageBox").textContent="הטיימר הוקפא ל־10 שניות.";
+  setTimeout(startTimer,10000);
+}
+
+let cameFromGameToShop=false;
+
+function showNoItemOverlay(type){
+  clearInterval(timerInterval); // pause timer
+  const labels={hint:"רמז 💡",skip:"דילוג ⏭",freeze:"הקפאה ❄️"};
+  const prices={hint:10,skip:15,freeze:20};
+  let el=document.getElementById("noItemOverlay");
+  if(!el){el=document.createElement("div");el.id="noItemOverlay";document.body.appendChild(el);}
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(59,158,255,.2);border-radius:28px;padding:32px 24px;max-width:320px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)">
+    <div style="font-size:52px;margin-bottom:10px">🛒</div>
+    <h2 style="color:var(--text);margin-bottom:8px">אין ${labels[type]} במלאי</h2>
+    <p style="color:var(--text2);margin-bottom:6px">אפשר לקנות ${labels[type]} בחנות תמורת <b style="color:var(--gold)">${prices[type]} 🪙</b></p>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:20px">יש לך כרגע <b style="color:var(--gold)">${progress.coins} 🪙</b></p>
+    <div style="display:flex;gap:10px">
+      <button onclick="goToShopFromGame()" style="flex:1;background:linear-gradient(135deg,#ffc107,#e6a500);color:#111;font-size:15px;font-weight:900;padding:12px;border-radius:14px;border:none;cursor:pointer;font-family:Heebo,Arial,sans-serif">כן, לחנות 🛒</button>
+      <button onclick="closeNoItemOverlay()" style="flex:1;background:rgba(255,255,255,.08);color:var(--text);font-size:15px;font-weight:700;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-family:Heebo,Arial,sans-serif">לא, המשך</button>
+    </div>
+  </div>`;
+}
+
+function closeNoItemOverlay(){
+  const el=document.getElementById("noItemOverlay");
+  if(el)el.remove();
+  resumeTimer();
+}
+
+function goToShopFromGame(){
+  const el=document.getElementById("noItemOverlay");
+  if(el)el.remove();
+  cameFromGameToShop=true;
+  showScreen("shopScreen");
+}
+
+function returnToGameFromShop(){
+  cameFromGameToShop=false;
+  showScreen("gameScreen");
+  resumeTimer();
+}
+function reveal(c){document.querySelectorAll(".answer").forEach(b=>{if(b.dataset.answer===c)b.classList.add("correct")})}
+function startTimer(){timer=selectedGame==="challenge"?10:questionTime;document.getElementById("timerText").textContent=timer;timerInterval=setInterval(()=>{timer--;document.getElementById("timerText").textContent=timer;if(timer<=0){clearInterval(timerInterval);timeUp()}},1000)}
+function timeUp(){progress.wrong++;currentMistakes++;playSound("bad");document.getElementById("mistakesText").textContent=currentMistakes;document.getElementById("messageBox").textContent="הזמן נגמר!";reveal(currentCorrect);savePlayers();if(currentMistakes>=maxMistakes()){lockCurrentGame();return}setTimeout(()=>{qIndex++;loadQuestion()},1400)}
+function surpriseCard(){
+  let cards=[["🪙 קיבלת 5 מטבעות",5,0],["⭐ קיבלת 10 XP",0,10],["🎯 בונוס נקודה",0,0,true],["🎲 אין הפתעה הפעם",0,0]];
+  let c=cards[Math.floor(Math.random()*cards.length)];
+  if(c[1])progress.coins+=c[1];
+  if(c[2])progress.xp+=c[2];
+  if(c[3])score++;
+  const box=document.getElementById("surpriseBox");
+  box.textContent="";
+  box.classList.remove("hidden");
+  box.style.animation="none";
+  box.offsetHeight; // reflow
+  box.style.animation="surprisePop .5s ease";
+  box.textContent="🎁 קלף הפתעה: "+c[0];
+  savePlayers();
+}
+function finishGame(back=false){clearInterval(timerInterval);progress.games++;progress.best=Math.max(progress.best,score);let win=score>=7;if(win){progress.wins++;progress.winsByGame[selectedGame]=(progress.winsByGame[selectedGame]||0)+1;playSound("win")}checkAchievements();
+// On real finish (not exit): XP/coins already in progress from rewardFeature, just save
+if(!back){ savePlayers(); }
+if(back){showScreen("homeScreen");return}
+// Show end screen with earned amounts
+document.getElementById("finalScoreText").textContent=score;
+document.getElementById("endCorrect").textContent=score;
+document.getElementById("endWrong").textContent=currentMistakes;
+document.getElementById("endTitle").textContent=win?"ניצחון! 🏆":"כל הכבוד!";
+document.getElementById("endEmoji").textContent=win?"🎉🏆🎉":"👏";
+document.getElementById("rewardText").innerHTML=`${win?"ניצחון! נשמר לשחקן "+currentPlayer:"משחק יפה!"}<br>הרווחת: <b style="color:var(--gold)">+${pendingCoins} 🪙</b> · <b style="color:var(--main)">+${pendingXP} XP ⭐</b><br>מדינות שנאספו: ${completedCountries().length}/${countries.length}`;
+pendingXP=0; pendingCoins=0;
+showScreen("endScreen")}
+function dailyWheel(){
+  let today=new Date().toDateString();
+  if(progress.dailySpin===today){
+    // Show overlay with "already spun" message
+    showDailyWheelOverlay(null);
+    return;
+  }
+  let prizes=[["50 מטבעות",50,0],["25 מטבעות",25,0],["60 XP",0,60],["10 מטבעות ו־20 XP",10,20],["15 מטבעות",15,0],["30 XP",0,30]];
+  let p=prizes[Math.floor(Math.random()*prizes.length)];
+  progress.coins+=p[1];progress.xp+=p[2];
+  progress.dailySpin=today;
+  savePlayers();renderHome();
+  showDailyWheelOverlay(p[0]);
+}
+function showDailyWheelOverlay(prize){
+  let el=document.getElementById("wheelOverlay");
+  if(!el){el=document.createElement("div");el.id="wheelOverlay";document.body.appendChild(el);}
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  el.innerHTML=prize?`
+    <div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(255,193,7,.3);border-radius:28px;padding:36px 28px;max-width:320px;width:90%;text-align:center;">
+      <div style="font-size:64px;animation:bounce .7s infinite alternate">🎁</div>
+      <h2 style="color:var(--gold);margin:12px 0">זכית!</h2>
+      <p style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:20px">${prize}</p>
+      <button onclick="document.getElementById('wheelOverlay').remove()" style="background:linear-gradient(135deg,#ffc107,#e6a500);color:#111;font-size:16px;font-weight:900;padding:12px 28px;border-radius:14px;border:none;cursor:pointer;width:100%">תודה! 🎉</button>
+    </div>`:`
+    <div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(255,255,255,.1);border-radius:28px;padding:36px 28px;max-width:320px;width:90%;text-align:center;">
+      <div style="font-size:48px">⏳</div>
+      <h2 style="color:var(--text2);margin:12px 0">כבר סובבת היום</h2>
+      <p style="color:var(--text2)">חזור מחר לגלגל שוב!</p>
+      <button onclick="document.getElementById('wheelOverlay').remove()" style="background:rgba(255,255,255,.1);color:var(--text);font-size:15px;font-weight:700;padding:10px 24px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;margin-top:16px">סגור</button>
+    </div>`;
+}
+function updateDaily(){
+  const now=new Date();
+  const today=now.toDateString();
+  // Use actual day comparison not timestamp subtraction — avoids midnight bug
+  const yesterday=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1).toDateString();
+  if(progress.lastDay===yesterday)progress.streak=(progress.streak||0)+1;
+  else if(progress.lastDay!==today)progress.streak=1;
+  progress.lastDay=today;
+}
+function checkAchievements(){
+  const ach=[];
+  if(progress.correct>=10)ach.push("10 תשובות נכונות");
+  if(progress.correct>=50)ach.push("50 תשובות נכונות");
+  if(progress.wins>=5)ach.push("5 ניצחונות");
+  if(completedCountries().length>=10)ach.push("אספן מתחיל");
+  if(completedCountries().length>=30)ach.push("חוקר עולם");
+  if(completedCountries().length===countries.length)ach.push("אספת את כל העולם");
+  const c=counts();
+  Object.entries(c.all).forEach(([k,total])=>{if(c.got[k]===total&&total>0)ach.push("גביע "+({Europe:"אירופה",Asia:"אסיה",Africa:"אפריקה",Americas:"אמריקה",Oceania:"אוקיאניה"}[k]))});
+  // Add to earned (not claimed yet) — no auto-reward
+  if(!progress.earnedAchievements)progress.earnedAchievements=[];
+  if(!progress.claimedAchievements)progress.claimedAchievements=[];
+  const newlyEarned=ach.filter(a=>!progress.earnedAchievements.includes(a));
+  if(newlyEarned.length>0){
+    progress.earnedAchievements=[...new Set([...progress.earnedAchievements,...ach])];
+    progress.achievements=[...new Set([...(progress.achievements||[]),...ach])];
+    savePlayers();
+  }
+}
+
+function claimAchievementReward(id){
+  if(!progress.claimedAchievements)progress.claimedAchievements={};
+  const today=new Date().toDateString();
+  if(progress.claimedAchievements[id]===today){
+    showToast("כבר אספת את הפרס הזה היום, חזור מחר 🌙","bad");return;
+  }
+  const a=achievementDefs.find(x=>x.id===id);
+  if(!a)return;
+  const coins=parseInt((a.reward.match(/(\d+) מטבעות/)||[])[1]||0);
+  const xp=parseInt((a.reward.match(/(\d+) XP/)||[])[1]||0);
+  progress.coins+=coins; progress.xp+=xp;
+  progress.claimedAchievements[id]=today;
+  savePlayers();
+  renderHome();
+  showToast(`אספת: ${a.reward} 🎉`,"good");
+  renderAchievements();
+}
+
+function renderAchievements(){
+  checkAchievements();
+  if(!progress.claimedAchievements)progress.claimedAchievements={};
+  const today=new Date().toDateString();
+  const box=document.getElementById("achievementsBox");
+  box.innerHTML="";
+  // Count claimable today
+  const claimable=(progress.earnedAchievements||[]).filter(id=>progress.claimedAchievements[id]!==today);
+  if(claimable.length>0){
+    box.innerHTML+=`<div class="panel" style="background:linear-gradient(135deg,rgba(255,193,7,.1),rgba(255,193,7,.05));border:1px solid rgba(255,193,7,.3);text-align:center;color:var(--gold);font-weight:700">🎁 יש לך ${claimable.length} פרסים לאיסוף היום!</div>`;
+  }
+  achievementDefs.forEach(a=>{
+    const earned=(progress.earnedAchievements||[]).includes(a.id);
+    const claimedToday=progress.claimedAchievements[a.id]===today;
+    let badge="";
+    if(earned&&!claimedToday) badge=`<button onclick="claimAchievementReward('${a.id}')" style="background:linear-gradient(135deg,#ffc107,#e6a500);color:#111;border:none;border-radius:10px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;margin-top:6px;font-family:Arial,sans-serif;animation:missionPulse 1s infinite alternate">🎁 אסוף פרס</button>`;
+    else if(earned&&claimedToday) badge=`<p style="color:var(--text2);font-size:12px;margin-top:4px">✅ נאסף היום · נפתח מחר בחצות</p>`;
+    box.innerHTML+=`<div class="card" style="cursor:pointer;opacity:${earned?1:.65}" onclick="showAchievementDetail('${a.id}')">
+      <div class="emoji">${earned?a.emoji:"🔒"}</div>
+      <h3>${a.id}</h3>
+      <p style="font-size:13px;color:var(--text2)">${earned?"✅ הושלם":"🔒 נעול — לחץ לפרטים"}</p>
+      ${badge}
+    </div>`;
+  });
+}
+function renderCollection(){
+ document.getElementById("collectedCount").textContent=`${completedCountries().length}/${countries.length} מדינות נאספו לגמרי`;
+ let box=document.getElementById("collectionBox"); box.innerHTML="";
+ const order=["continent","capital","language","currency","site","flag"];
+ countries.forEach(c=>{
+   let f=progress.features[c.code]||{}, got=isCountryComplete(c.code);
+   box.innerHTML+=`<div class="card ${got?"":"locked"}">
+     <h3>${v(c,"name")}</h3>
+     <div>${order.map(x=>`<span class="feature ${x} ${f[x]?"done":""}">${featureNames[x]}</span>`).join("")}</div>
+     <p class="small">${got?"המדינה הושלמה ונאספה ✅":"סמן את כל הקוביות כדי לאסוף את המדינה"}</p>
+   </div>`;
+ });
+}
+const achievementDefs = [
+  {id:"10 תשובות נכונות",   emoji:"🎯", desc:"ענה נכון על 10 שאלות",          req:"10 תשובות נכונות בסך הכל", reward:"15 מטבעות"},
+  {id:"50 תשובות נכונות",   emoji:"⭐", desc:"ענה נכון על 50 שאלות",          req:"50 תשובות נכונות בסך הכל", reward:"40 מטבעות"},
+  {id:"5 ניצחונות",          emoji:"🏅", desc:"נצח ב-5 משחקים עם ניקוד 7+",   req:"5 ניצחונות (ניקוד 7 ומעלה)", reward:"50 מטבעות"},
+  {id:"אספן מתחיל",          emoji:"🗺️", desc:"אסוף 10 מדינות שלמות",         req:"השלם את כל 6 הדברים ב-10 מדינות", reward:"30 מטבעות"},
+  {id:"חוקר עולם",           emoji:"🌍", desc:"אסוף 30 מדינות שלמות",         req:"השלם את כל 6 הדברים ב-30 מדינות", reward:"100 מטבעות"},
+  {id:"גביע אירופה",         emoji:"🏆", desc:"השלם את כל מדינות אירופה",      req:"השלם את כל המדינות ביבשת אירופה", reward:"100 מטבעות + 150 XP"},
+  {id:"גביע אסיה",           emoji:"🏆", desc:"השלם את כל מדינות אסיה",        req:"השלם את כל המדינות ביבשת אסיה",  reward:"100 מטבעות + 150 XP"},
+  {id:"גביע אפריקה",         emoji:"🏆", desc:"השלם את כל מדינות אפריקה",     req:"השלם את כל המדינות ביבשת אפריקה",reward:"100 מטבעות + 150 XP"},
+  {id:"גביע אמריקה",         emoji:"🏆", desc:"השלם את כל מדינות אמריקה",     req:"השלם את כל המדינות ביבשת אמריקה",reward:"100 מטבעות + 150 XP"},
+  {id:"גביע אוקיאניה",       emoji:"🏆", desc:"השלם את כל מדינות אוקיאניה",   req:"השלם את כל המדינות ביבשת אוקיאניה",reward:"100 מטבעות + 150 XP"},
+  {id:"אספת את כל העולם",    emoji:"🌐", desc:"אסוף את כל 147 המדינות",       req:"השלם את כל 6 הדברים בכל 147 המדינות", reward:"500 מטבעות + 500 XP"},
+];
+
+function renderAchievements(){
+  checkAchievements();
+  const box=document.getElementById("achievementsBox");
+  box.innerHTML="";
+  achievementDefs.forEach(a=>{
+    const got=progress.achievements.includes(a.id);
+    box.innerHTML+=`<div class="card" style="cursor:pointer;opacity:${got?1:.65}" onclick="showAchievementDetail('${a.id}')">
+      <div class="emoji">${got?a.emoji:"🔒"}</div>
+      <h3>${a.id}</h3>
+      <p style="font-size:13px;color:var(--text2)">${got?"✅ הושלם — לחץ לפרטים":"🔒 נעול — לחץ לפרטים"}</p>
+    </div>`;
+  });
+}
+
+function showAchievementDetail(id){
+  const a=achievementDefs.find(x=>x.id===id);
+  if(!a)return;
+  const got=progress.achievements.includes(id);
+  let el=document.getElementById("achievementOverlay");
+  if(!el){el=document.createElement("div");el.id="achievementOverlay";document.body.appendChild(el);}
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:overlayIn .25s ease";
+  el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid ${got?"rgba(255,193,7,.4)":"rgba(255,255,255,.1)"};border-radius:28px;padding:32px 24px;max-width:340px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)">
+    <div style="font-size:60px;margin-bottom:10px">${got?a.emoji:"🔒"}</div>
+    <h2 style="color:${got?"var(--gold)":"var(--text)"};margin-bottom:12px">${a.id}</h2>
+    ${got
+      ? `<div style="background:rgba(0,214,143,.1);border:1px solid rgba(0,214,143,.3);border-radius:14px;padding:12px;margin-bottom:14px">
+           <div style="color:var(--good);font-weight:800;font-size:15px">✅ הושלם!</div>
+           <div style="color:var(--text2);font-size:14px;margin-top:6px">${a.desc}</div>
+         </div>
+         <div style="background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);border-radius:12px;padding:10px;margin-bottom:16px">
+           <div style="font-size:12px;color:var(--text2)">🎁 פרס שקיבלת</div>
+           <div style="font-size:16px;font-weight:800;color:var(--gold)">${a.reward}</div>
+         </div>`
+      : `<div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-bottom:12px">
+           <div style="color:var(--text2);font-size:13px;margin-bottom:6px">🎯 מה צריך לעשות?</div>
+           <div style="color:var(--text);font-weight:800;font-size:15px">${a.req}</div>
+         </div>
+         <div style="background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);border-radius:12px;padding:12px;margin-bottom:16px">
+           <div style="font-size:12px;color:var(--text2)">🎁 תקבל בתמורה</div>
+           <div style="font-size:17px;font-weight:900;color:var(--gold)">${a.reward}</div>
+         </div>`
+    }
+    <button onclick="document.getElementById('achievementOverlay').remove()" style="background:${got?"linear-gradient(135deg,#ffc107,#e6a500);color:#111":"linear-gradient(135deg,rgba(59,158,255,.3),rgba(59,158,255,.1));color:var(--text)"};font-size:15px;font-weight:800;padding:12px 28px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;width:100%;font-family:Heebo,Arial,sans-serif">
+      ${got?"סגור ✓":"הבנתי, אעבוד על זה! 💪"}
+    </button>
+  </div>`;
+}
+function renderShop(){
+ // Update back button text based on context
+ document.querySelectorAll("#shopScreen button.secondary").forEach(b=>{
+   if(b.textContent.includes("חזרה")){
+     b.textContent = cameFromGameToShop ? "← חזרה למשחק" : "← חזרה";
+     b.className = cameFromGameToShop ? "green" : "secondary";
+   }
+ });
+ let box=document.getElementById("shopBox"); box.innerHTML="";
+ box.innerHTML+=`
+ <div class="card shopTop">
+   <h2>🪙 הכסף שלך: <span id="shopCoins">${progress.coins}</span> מטבעות</h2>
+   <div class="pill">רמזים: ${progress.hints||0}</div>
+   <div class="pill">דילוגים: ${progress.skips||0}</div>
+   <div class="pill">הקפאות: ${progress.freezes||0}</div>
+   <div class="pill">חיים: ${progress.lives||0}</div>
+   <div id="shopMessage" class="shopMsg"></div>
+ </div>
+ <div class="card shopAction"><h3>רמז לשאלה (${progress.hints||0})</h3><p>מחיר: 10 מטבעות</p><button onclick="buyHint()">קנה רמז</button></div>
+ <div class="card shopAction"><h3>דילוג על שאלה (${progress.skips||0})</h3><p>מחיר: 15 מטבעות</p><button onclick="buySkip()">קנה דילוג</button></div>
+ <div class="card shopAction"><h3>הקפאת טיימר (${progress.freezes||0})</h3><p>מחיר: 20 מטבעות</p><button onclick="buyFreeze()">קנה הקפאה</button></div>
+ <div class="card shopAction"><h3>חיים (${progress.lives||0})</h3><p>מחיר: 25 מטבעות</p><button onclick="buyLifeForInventory()">קנה חיים</button></div>
+ <div class="card shopAction"><h3>תיבת אוצר</h3><p>כל 500 XP אפשר לפתוח תיבה</p><button onclick="openTreasure()">פתח תיבה</button></div>`;
+}
+function shopNotice(text,type="good"){
+ let oldMsg=text, oldType=type;
+ renderShop();
+ let msg=document.getElementById("shopMessage");
+ if(msg){msg.textContent=oldMsg;msg.className="shopMsg "+oldType;}
+ // also update in-game button counts
+ const hc=document.getElementById("hintCount"); if(hc)hc.textContent=progress.hints||0;
+ const sc=document.getElementById("skipCount"); if(sc)sc.textContent=progress.skips||0;
+ const fc=document.getElementById("freezeCount"); if(fc)fc.textContent=progress.freezes||0;
+}
+function spendCoins(amount){
+ if(progress.coins<amount){
+   shopNotice("חסר כסף", "bad");
+   return false;
+ }
+ progress.coins-=amount;
+ return true;
+}
+function buyHint(){if(!spendCoins(10))return;progress.hints=(progress.hints||0)+1;savePlayers();shopNotice("נוסף רמז למלאי ✅")}
+function buySkip(){if(!spendCoins(15))return;progress.skips=(progress.skips||0)+1;savePlayers();shopNotice("נוסף דילוג למלאי ✅")}
+function buyFreeze(){if(!spendCoins(20))return;progress.freezes=(progress.freezes||0)+1;savePlayers();shopNotice("נוספה הקפאת זמן למלאי ✅")}
+function buyLifeForInventory(){if(!spendCoins(25))return;progress.lives=(progress.lives||0)+1;savePlayers();shopNotice("נוסף חיים למלאי ✅")}
+function openTreasure(){let available=Math.floor(progress.xp/500)-Math.floor((progress.treasureOpenedAt||0)/500);if(available<=0){shopNotice("חסר XP לפתיחת תיבה", "bad");return}let prizes=[["30 מטבעות",30,0],["50 מטבעות",50,0],["25 XP",0,25],["רמז חינם",0,0,"hint"],["דילוג חינם",0,0,"skip"],["חיים חינם",0,0,"life"]];let p=prizes[Math.floor(Math.random()*prizes.length)];progress.coins+=p[1];progress.xp+=p[2];if(p[3]==="hint")progress.hints=(progress.hints||0)+1;if(p[3]==="skip")progress.skips=(progress.skips||0)+1;if(p[3]==="life")progress.lives=(progress.lives||0)+1;progress.treasureOpenedAt=progress.xp;savePlayers();shopNotice("נוסף מהתיבה: "+p[0]+" ✅")}
+function buyTheme(t,price){if(!progress.ownedThemes.includes(t)){if(progress.coins<price){shopNotice("חסר כסף","bad");return}progress.coins-=price;progress.ownedThemes.push(t);setTheme(t);savePlayers();shopNotice("נרכש ונוסף ✅");return}setTheme(t);savePlayers();shopNotice("הופעל ✅")}
+function todayKey(){return new Date().toDateString()}
+function dailyMissionTarget(){return 5}
+function dailyMissionProgress(){return Number(localStorage.getItem("dailyMission_"+currentPlayer+"_"+todayKey())||"0")}
+function addDailyMissionProgress(){localStorage.setItem("dailyMission_"+currentPlayer+"_"+todayKey(), String(dailyMissionProgress()+1));updateDailyMissionButton();}
+function updateDailyMissionButton(){
+  const btn=document.getElementById("dailyMissionBtn");
+  if(!btn)return;
+  const done=dailyMissionProgress(),target=dailyMissionTarget(),claimed=progress.dailyMissionClaimed===todayKey();
+  if(claimed){btn.style.animation="";btn.textContent="🎯 משימה יומית ✅";btn.className="green";}
+  else if(done>=target){btn.style.animation="missionPulse 1s infinite alternate";btn.textContent="🎯 אסוף פרס!";btn.className="gold";}
+  else{btn.style.animation="";btn.textContent="🎯 משימה יומית";btn.className="green";}
+}
+function renderDailyMission(){updateDailyMissionButton();}
+function claimDailyMission(){
+  const done=dailyMissionProgress(),target=dailyMissionTarget(),claimed=progress.dailyMissionClaimed===todayKey();
+  if(claimed){showDailyMissionOverlay("claimed");}
+  else if(done>=target){progress.coins+=30;progress.xp+=35;progress.dailyMissionClaimed=todayKey();savePlayers();renderHome();showDailyMissionOverlay("collected");}
+  else{showDailyMissionOverlay("info");}
+}
+function showDailyMissionOverlay(state){
+  const done=dailyMissionProgress(),target=dailyMissionTarget();
+  let el=document.getElementById("dailyMissionOverlay");
+  if(!el){el=document.createElement("div");el.id="dailyMissionOverlay";document.body.appendChild(el);}
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  const content=state==="claimed"
+    ?`<div style="font-size:56px">⏳</div><h2 style="color:var(--text2);margin:10px 0">כבר ביצעת את המשימה היום</h2><p style="color:var(--text2)">נסה מחר שוב!</p><p style="font-size:13px;color:var(--text2);margin-top:6px">המשימה מתחדשת בחצות</p>`
+    :state==="collected"
+    ?`<div style="font-size:56px;animation:bounce .7s infinite alternate">🎁</div><h2 style="color:var(--gold);margin:10px 0">כל הכבוד! אספת את הפרס!</h2><div style="background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3);border-radius:14px;padding:14px;margin:12px 0"><div style="font-size:22px;font-weight:900;color:var(--gold)">30 🪙 + 35 XP ⭐</div></div>`
+    :`<div style="font-size:56px">🎯</div><h2 style="color:var(--main);margin:10px 0">המשימה היומית</h2><div style="background:rgba(59,158,255,.1);border:1px solid rgba(59,158,255,.3);border-radius:14px;padding:14px;margin:12px 0"><div style="font-size:15px;font-weight:800;color:var(--text)">ענה נכון על ${target} שאלות היום</div><div style="margin-top:8px;font-size:24px;font-weight:900;color:var(--main)">${Math.min(done,target)} / ${target}</div></div><div style="background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);border-radius:12px;padding:10px"><div style="font-size:13px;color:var(--text2)">🎁 פרס</div><div style="font-size:17px;font-weight:900;color:var(--gold)">30 מטבעות + 35 XP</div></div>`;
+  el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(59,158,255,.2);border-radius:28px;padding:32px 24px;max-width:320px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)">${content}<button onclick="document.getElementById('dailyMissionOverlay').remove()" style="background:linear-gradient(135deg,rgba(59,158,255,.3),rgba(59,158,255,.1));color:var(--text);font-size:15px;font-weight:800;padding:12px 28px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;width:100%;margin-top:16px;font-family:Heebo,Arial,sans-serif">סגור</button></div>`;
+}
+function checkContinentTrophyAnimation(){let c=counts();let names={Europe:"אירופה",Asia:"אסיה",Africa:"אפריקה",Americas:"אמריקה",Oceania:"אוקיאניה"};for(let k of Object.keys(c.all)){if(c.all[k]>0&&c.got[k]===c.all[k]&&!(progress.shownContinentTrophies||[]).includes(k)){progress.shownContinentTrophies=progress.shownContinentTrophies||[];progress.shownContinentTrophies.push(k);progress.coins+=100;progress.xp+=150;savePlayers();document.getElementById("continentTrophyTitle").textContent="גביע "+names[k]+"!";document.getElementById("continentTrophyText").innerHTML=`השלמת את כל מדינות ${names[k]}!<br>קיבלת בונוס 100 מטבעות ו־150 XP.`;showScreen("continentTrophyScreen");return true}}return false}
+function addPassportStamp(c){
+ if(!progress.passportStamps.includes(c.code)){
+   progress.passportStamps.push(c.code);
+   let stamps=progress.passportStamps.length;
+   let newLevel=Math.floor(stamps/10);
+   if(newLevel>progress.passportBonusLevel){
+     let levels=newLevel-progress.passportBonusLevel;
+     progress.passportBonusLevel=newLevel;
+     progress.coins+=levels*40;
+     progress.xp+=levels*60;
+     document.getElementById("messageBox").textContent += ` · דרכון: בונוס ${levels*40} מטבעות ו־${levels*60} XP!`;
+   }
+   if(stamps===countries.length&&!progress.passportCompleted){
+     progress.passportCompleted=true;
+     progress.coins+=250;
+     progress.xp+=400;
+     document.getElementById("messageBox").textContent += " · בונוס סיום דרכון! 250 מטבעות ו־400 XP!";
+   }
+ }
+}
+function renderPassport(){
+ let stamps=progress.passportStamps||[];
+ document.getElementById("passportCount").textContent=`${stamps.length}/${countries.length}`;
+ document.getElementById("passportBonuses").textContent=progress.passportBonusLevel||0;
+ document.getElementById("passportBar").style.width=Math.round(stamps.length/countries.length*100)+"%";
+ document.getElementById("passportMsg").textContent=progress.passportCompleted?"הדרכון הושלם! זכית בבונוס הסיום 🏆":`עוד ${10-(stamps.length%10||10)} חותמות לבונוס הבא`;
+ let box=document.getElementById("passportBox"); box.innerHTML="";
+ countries.forEach(c=>{
+   let got=stamps.includes(c.code);
+   box.innerHTML+=`<div class="card passportCard ${got?"stamp":"locked"}">${got?`<div class="site-placeholder">📸</div><h3>${v(c,"site")}</h3><p>${v(c,"name")}</p>`:`<div class="secretBox">📍</div><h3>מקום לא מוחתם</h3><p>ענה נכון על אתר תיירות כדי להחתים</p>`}</div>`;
+ });
+}
+function renderLeaderboard(){
+ loadPlayers();
+ let rows=Object.entries(players).map(([name,p])=>{
+   p=normalizeProgress(p);
+   return {name, xp:p.xp||0, coins:p.coins||0, wins:p.wins||0, countries:completedCountries(p).length, level:Math.floor((p.xp||0)/120)+1};
+ }).sort((a,b)=>(b.xp+b.countries*50+b.wins*30+b.coins/5)-(a.xp+a.countries*50+a.wins*30+a.coins/5));
+ let box=document.getElementById("leaderboardBox");
+ if(!rows.length){box.innerHTML="אין עדיין שחקנים";return}
+ box.innerHTML=rows.map((r,i)=>`<div class="leaderRow"><b>${i+1}. ${r.name}</b><span>רמה ${r.level}</span><span>${r.xp} XP</span><span>${r.countries} מדינות</span><span>${r.wins} ניצחונות</span></div>`).join("");
+}
+function exportPlayer(){
+ if(!currentPlayer){showToast("אין שחקן פעיל","bad");return}
+ const data={name:currentPlayer,progress};
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url; a.download="around_world_player_"+currentPlayer+".json";
+ document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+function importPlayer(ev){
+ const file=ev.target.files[0]; if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const data=JSON.parse(reader.result);
+   if(!data.name||!data.progress)throw new Error("קובץ לא מתאים");
+   loadPlayers();
+   players[data.name]=normalizeProgress(data.progress);
+   localStorage.setItem("aroundWorldPlayers21",JSON.stringify(players));
+   showToast("השחקן יובא בהצלחה: "+data.name,"good");
+   renderLogin();
+  }catch(e){showToast("לא הצלחתי לייבא את הקובץ","bad");}
+ };
+ reader.readAsText(file);
+}
+function renderStats(){let wins=Object.entries(progress.winsByGame||{}).map(([g,w])=>`${games.find(x=>x.id===g)?.title||g}: ${w}`).join("<br>")||"אין עדיין";document.getElementById("statsBox").innerHTML=`שחקן: <b>${currentPlayer}</b><br>משחקים: ${progress.games}<br>ניצחונות: ${progress.wins}<br>ניצחונות לפי משחק:<br>${wins}<br>שיא ניקוד: ${progress.best}<br>תשובות נכונות: ${progress.correct}<br>טעויות: ${progress.wrong}<br>מדינות שנאספו לגמרי: ${completedCountries().length}/${countries.length}<br>חותמות בדרכון: ${(progress.passportStamps||[]).length}/${countries.length}<br>רמזים: ${progress.hints||0}<br>דילוגים: ${progress.skips||0}<br>הקפאות: ${progress.freezes||0}<br>חיים: ${progress.lives||0}<br>הישגים: ${progress.achievements.length}`}
+function resetCurrentPlayer(){if(confirm("לאפס את השחקן הנוכחי?")){players[currentPlayer]=cloneBase();progress=players[currentPlayer];savePlayers();showScreen("homeScreen")}}
+function playSound(type){
+ if(!soundOn)return;
+ try{
+  const ctx=new(window.AudioContext||window.webkitAudioContext)();
+  const master=ctx.createGain();
+  master.gain.value=.24;
+  master.connect(ctx.destination);
+  function note(freq,start,dur,kind="sine",vol=1){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=kind;
+    o.frequency.setValueAtTime(freq,ctx.currentTime+start);
+    g.gain.setValueAtTime(0.0001,ctx.currentTime+start);
+    g.gain.exponentialRampToValueAtTime(.22*vol,ctx.currentTime+start+.018);
+    g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+start+dur);
+    o.connect(g); g.connect(master);
+    o.start(ctx.currentTime+start); o.stop(ctx.currentTime+start+dur+.03);
+  }
+  if(type==="good"){
+    note(880,0,.12,"triangle",1);
+    note(1174,.10,.13,"triangle",1);
+    note(1568,.22,.18,"sine",1);
+    note(2093,.38,.22,"sine",.75);
+  }else if(type==="bad"){
+    note(740,0,.14,"square",.65);
+    note(622,.14,.16,"square",.6);
+    note(523,.30,.22,"sawtooth",.55);
+  }else if(type==="win"){
+    note(880,0,.12,"triangle",1);
+    note(1046,.12,.12,"triangle",1);
+    note(1318,.24,.16,"triangle",1);
+    note(1760,.40,.35,"sine",1);
+    note(2093,.62,.28,"sine",.75);
+  }else{
+    note(880,0,.12,"triangle",.8);
+    note(1320,.1,.18,"triangle",.8);
+  }
+ }catch(e){}
+}
+
+function stopBackgroundMusic2_unused(){}
+
+// ===== MUSIC SYSTEM v4.1 — per-game themes =====
+// Each theme is a set of notes + rhythm + waveform
+const musicThemes = {
+  home: {
+    notes:[392,440,494,523,587,523,494,440],
+    rhythm:.38, wave:"triangle", vol:.04,
+    label:"מנגינת בית"
+  },
+  flagToCountry: {
+    notes:[523,659,784,880,784,659,523,440],
+    rhythm:.28, wave:"sine", vol:.045,
+    label:"דגלים"
+  },
+  countryToFlag: {
+    notes:[440,494,523,587,659,587,523,494],
+    rhythm:.3, wave:"triangle", vol:.04,
+    label:"דגלים"
+  },
+  capital: {
+    notes:[349,392,440,523,440,392,349,330],
+    rhythm:.45, wave:"triangle", vol:.04,
+    label:"בירות"
+  },
+  currency: {
+    notes:[262,330,392,523,392,330,294,262],
+    rhythm:.35, wave:"sawtooth", vol:.025,
+    label:"מטבעות"
+  },
+  language: {
+    notes:[293,329,370,440,493,440,370,329],
+    rhythm:.32, wave:"sine", vol:.04,
+    label:"שפות"
+  },
+  site: {
+    notes:[523,587,659,698,784,698,659,587],
+    rhythm:.5, wave:"sine", vol:.04,
+    label:"אתרים"
+  },
+  continent: {
+    notes:[196,220,247,262,294,330,349,330],
+    rhythm:.55, wave:"triangle", vol:.038,
+    label:"יבשות"
+  },
+  mixed: {
+    notes:[440,494,523,587,659,784,880,784],
+    rhythm:.22, wave:"triangle", vol:.045,
+    label:"אליפות"
+  },
+  challenge: {
+    notes:[880,988,1047,1175,988,880,784,698],
+    rhythm:.18, wave:"square", vol:.02,
+    label:"אתגר"
+  },
+  survival: {
+    notes:[220,247,262,247,220,196,175,196],
+    rhythm:.4, wave:"sawtooth", vol:.025,
+    label:"הישרדות"
+  },
+  expert: {
+    notes:[330,370,415,466,523,466,415,370],
+    rhythm:.42, wave:"sine", vol:.038,
+    label:"מומחה"
+  }
+};
+
+let currentMusicTheme = "home";
+
+function startBackgroundMusic(themeKey){ /* מוזיקה מבוטלת */ }
+function stopBackgroundMusic(){ try{if(bgCtx){bgCtx.close();}}catch(e){} bgCtx=null; bgNodes=[]; }
+function switchMusicTheme(themeKey){ /* מוזיקה מבוטלת */ }
+function toggleMusic(){ bgMusicOn=false; }
+
+function restoreAndExit(){
+  // Restore full pre-game state
+  progress.xp = preGameXP;
+  progress.coins = preGameCoins;
+  progress.correct = preGameCorrect;
+  progress.features = JSON.parse(JSON.stringify(preGameFeatures));
+  progress.passportStamps = [...preGamePassport];
+  progress.passportBonusLevel = preGamePassportBonusLevel;
+  pendingXP = 0;
+  pendingCoins = 0;
+  savePlayers();
+  finishGame(true);
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(msg, type="good") {
+  const t = document.createElement("div");
+  const colors = {
+    good: "linear-gradient(135deg,rgba(0,214,143,.95),rgba(0,150,100,.95))",
+    bad:  "linear-gradient(135deg,rgba(255,71,87,.95),rgba(180,40,50,.95))",
+    info: "linear-gradient(135deg,rgba(59,158,255,.95),rgba(20,100,200,.95))"
+  };
+  t.style.cssText = `position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;
+    background:${colors[type]||colors.info};color:#fff;font-weight:800;font-size:15px;
+    padding:12px 24px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);
+    font-family:Heebo,Arial,sans-serif;white-space:nowrap;
+    animation:toastIn .3s ease,toastOut .3s ease 2s forwards;pointer-events:none;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+// ===== EXIT CONFIRMATION =====
+function confirmExit(){
+  clearInterval(timerInterval);
+  let el=document.getElementById("exitOverlay");
+  if(!el){el=document.createElement("div");el.id="exitOverlay";document.body.appendChild(el);}
+  el.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  el.innerHTML=`<div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(255,71,87,.3);border-radius:28px;padding:32px 24px;max-width:320px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)">
+    <div style="font-size:52px;margin-bottom:10px">⚠️</div>
+    <h2 style="color:var(--text,#e8f4ff);margin-bottom:10px">לצאת מהמשחק?</h2>
+    <p style="color:rgba(138,184,232,.9);font-size:15px;line-height:1.6;margin-bottom:6px">אם תצא עכשיו, כל הנקודות והמטבעות שצברת במשחק הזה <b style="color:#ff4757">יאבדו</b>.</p>
+    <p style="color:rgba(138,184,232,.7);font-size:13px;margin-bottom:22px">מרוויחים נקודות ומטבעות רק אחרי סיום 10 השאלות.</p>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('exitOverlay').remove();resumeTimer()" style="flex:1;background:rgba(255,255,255,.08);color:#e8f4ff;font-size:15px;font-weight:700;padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.15);cursor:pointer;font-family:Heebo,Arial,sans-serif">המשך לשחק</button>
+      <button onclick="document.getElementById('exitOverlay').remove();restoreAndExit()" style="flex:1;background:linear-gradient(135deg,#ff4757,#c0392b);color:#fff;font-size:15px;font-weight:900;padding:12px;border-radius:14px;border:none;cursor:pointer;font-family:Heebo,Arial,sans-serif">צא בכל זאת</button>
+    </div>
+  </div>`;
+}
+
+// ===== STAT INFO OVERLAYS =====
+function showStatInfo(type) {
+  const infos = {
+    level: {
+      emoji: "🎖️",
+      title: "רמה",
+      desc: `אתה ברמה <b style="color:var(--main)">${level()}</b> — <b>${rank()}</b><br><br>כל 120 XP מעלים אותך רמה אחת.<br>ככל שתשחק ותצבור XP, תעלה בדרגה ותקבל תואר חדש.`,
+      extra: `עוד <b style="color:var(--gold)">${level()*120 - progress.xp}</b> XP לרמה ${level()+1}`
+    },
+    xp: {
+      emoji: "⭐",
+      title: "נקודות XP",
+      desc: `צברת <b style="color:var(--main)">${progress.xp}</b> XP בסך הכל.<br><br>XP מרוויחים על כל תשובה נכונה (+6 XP).<br>משימה יומית נותנת +35 XP.<br>גביע יבשת נותן +150 XP.`,
+      extra: `דרוש לרמה הבאה: <b style="color:var(--gold)">${level()*120}</b> XP`
+    },
+    coins: {
+      emoji: "🪙",
+      title: "מטבעות",
+      desc: `יש לך <b style="color:var(--gold)">${progress.coins}</b> מטבעות.<br><br>מרוויחים מטבעות על כל תשובה נכונה (+3 🪙).<br>משימה יומית נותנת +30 🪙.<br>גלגל מזל יומי יכול לתת עד 50 🪙.<br><br>משתמשים במטבעות לרכישת רמזים, דילוגים והקפאות בחנות.`,
+      extra: null
+    },
+    streak: {
+      emoji: "🔥",
+      title: "רצף יומי",
+      desc: `הרצף שלך הוא <b style="color:var(--bad)">${progress.streak}</b> ימים רצופים.<br><br>כנס למשחק כל יום כדי לשמור על הרצף.<br>אם תפספס יום — הרצף מתאפס ל-1.`,
+      extra: null
+    },
+    world: {
+      emoji: "🌍",
+      title: "השלמת העולם",
+      desc: `השלמת <b style="color:var(--main)">${completedCountries().length}</b> מתוך <b>${countries.length}</b> מדינות.<br><br>מדינה נחשבת מושלמת כשתצבור את כל 6 הדברים:<br>🏳️ דגל · 💰 מטבע · 🗣️ שפה · 🏛️ בירה · 📸 אתר תיירות · 🗺️ יבשת`,
+      extra: `אחוז השלמה: <b style="color:var(--good)">${pct()}%</b>`
+    }
+  };
+  const info = infos[type];
+  if (!info) return;
+  let el = document.getElementById("statInfoOverlay");
+  if (!el) { el = document.createElement("div"); el.id = "statInfoOverlay"; document.body.appendChild(el); }
+  el.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  el.innerHTML = `<div style="background:linear-gradient(135deg,rgba(15,25,50,.98),rgba(10,18,38,.98));border:1px solid rgba(59,158,255,.25);border-radius:28px;padding:32px 24px;max-width:320px;width:90%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.7)">
+    <div style="font-size:52px;margin-bottom:8px">${info.emoji}</div>
+    <h2 style="color:var(--main);margin-bottom:14px">${info.title}</h2>
+    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right;line-height:1.8;color:var(--text2);font-size:14px">${info.desc}</div>
+    ${info.extra ? `<div style="background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.2);border-radius:12px;padding:10px;margin-bottom:14px;font-size:14px;color:var(--text2)">${info.extra}</div>` : ""}
+    <button onclick="document.getElementById('statInfoOverlay').remove()" style="background:linear-gradient(135deg,var(--main),var(--main2));color:#fff;font-size:15px;font-weight:800;padding:12px 28px;border-radius:14px;border:none;cursor:pointer;width:100%;font-family:Heebo,Arial,sans-serif">הבנתי 👍</button>
+  </div>`;
+}
+
+// Update XP and coins in game topbar
+function updateGameTopbar() {
+  const xpEl = document.getElementById("gameXpText");
+  const coinsEl = document.getElementById("gameCoinsText");
+  if (xpEl) xpEl.textContent = progress.xp;
+  if (coinsEl) coinsEl.textContent = progress.coins;
+}
+
+// Hook into rewardFeature to update topbar after each correct answer
+let _avatarOpen = false;
+function toggleAvatarPanel(){
+ const panel=document.getElementById("avatarPanel");
+ const arrow=document.getElementById("avatarArrow");
+ if(!panel)return;
+ _avatarOpen=!_avatarOpen;
+ panel.style.maxHeight=_avatarOpen?panel.scrollHeight+600+"px":"0";
+ if(arrow)arrow.style.transform=_avatarOpen?"rotate(180deg)":"";
+ if(_avatarOpen)renderAvatarChoices();
+}
+function setTheme(t){theme=t;localStorage.setItem("theme",t);document.body.className=t==="ocean"?"":"theme-"+t;document.getElementById("themeSelect").value=t}
+function setLayout(x){layout=x;localStorage.setItem("layout",x);renderGames()}function toggleSound(){soundOn=document.getElementById("soundToggle").checked;localStorage.setItem("soundOn",soundOn)}function setQuestionTime(x){questionTime=parseInt(x);localStorage.setItem("questionTime",x)}
+function openSettingsFromGame(){cameFromGameToSettings=true;clearInterval(timerInterval);showScreen("settingsScreen")}
+function goBackFromSettings(){if(cameFromGameToSettings){cameFromGameToSettings=false;showScreen("gameScreen");startTimer()}else showScreen("homeScreen")}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+loadPlayers();setTheme(theme);document.getElementById("layoutSelect").value=layout;document.getElementById("soundToggle").checked=soundOn;document.getElementById("timeSelect").value=questionTime;renderLogin();
+
+
+// ===== IMPROVED UI ADDITIONS v4.1 =====
+
+// Track mistakes for end-screen review
+let gameMistakeLog = [];
+let preGameXP = 0, preGameCoins = 0, preGameCorrect = 0;
+let preGameFeatures = {}, preGamePassport = [], preGamePassportBonusLevel = 0;
+let pendingXP = 0, pendingCoins = 0;
+
+// Timer bar
+let timerMaxVal = 30;
+const _origStartTimer = startTimer;
+startTimer = function() {
+  timerMaxVal = selectedGame === "challenge" ? 10 : questionTime;
+  _origStartTimer();
+  updateTimerBar();
+};
+
+function resumeTimer() {
+  // Continue from current `timer` value without resetting
+  clearInterval(timerInterval);
+  document.getElementById("timerText").textContent = timer;
+  // Animate bar from current proportion
+  const el = document.getElementById("timerBarEl");
+  if (el) {
+    const pct = (timer / timerMaxVal) * 100;
+    el.style.transition = "none";
+    el.style.width = pct + "%";
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      el.style.transition = `width ${timer}s linear`;
+      el.style.width = "0%";
+    }));
+  }
+  timerInterval = setInterval(() => {
+    timer--;
+    document.getElementById("timerText").textContent = timer;
+    if (timer <= 0) { clearInterval(timerInterval); timeUp(); }
+  }, 1000);
+}
+function updateTimerBar() {
+  const el = document.getElementById("timerBarEl");
+  if (!el) return;
+  el.style.background = "linear-gradient(90deg,var(--good),var(--gold),var(--bad))";
+  el.style.width = "100%";
+  el.style.transition = "none";
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transition = `width ${timerMaxVal}s linear`;
+    el.style.width = "0%";
+  }));
+}
+
+// timeUp — flash bar red
+const _origTimeUp = timeUp;
+timeUp = function() {
+  const el = document.getElementById("timerBarEl");
+  if (el) { el.style.transition="none"; el.style.background="var(--bad)"; el.style.width="100%"; }
+  _origTimeUp();
+};
+
+// Timer color warning (on the small label inside bar)
+setInterval(function() {
+  const txt = document.getElementById("timerText");
+  if (!txt) return;
+  const val = parseInt(txt.textContent);
+  const wrap = txt.closest ? txt.closest("div") : null;
+  if (!wrap) return;
+  if (val <= 5) { wrap.style.color = "var(--bad)"; wrap.style.animation = "timerPulse .4s infinite alternate"; }
+  else if (val <= 10) { wrap.style.color = "var(--gold)"; wrap.style.animation = ""; }
+  else { wrap.style.color = "var(--text2)"; wrap.style.animation = ""; }
+}, 400);
+
+// Question dots
+// Track dot results: null=pending, true=correct, false=wrong
+let questionResults = [];
+
+function buildQuestionDots() {
+  const box = document.getElementById("questionDots");
+  if (!box) return;
+  box.innerHTML = "";
+  const total = questions.length || 10;
+  for (let i = 0; i < total; i++) {
+    const d = document.createElement("div");
+    if (i < qIndex) {
+      // already answered
+      d.className = "qDot " + (questionResults[i] === true ? "done-ok" : "done-bad");
+    } else if (i === qIndex) {
+      d.className = "qDot current";
+    } else {
+      d.className = "qDot";
+    }
+    d.id = "qDot" + i;
+    box.appendChild(d);
+  }
+}
+
+// startGame — save full pre-game state
+const _origStartGame = startGame;
+startGame = function() {
+  gameMistakeLog = [];
+  questionResults = [];
+  pendingXP = 0;
+  pendingCoins = 0;
+  // Deep-save state before game
+  preGameXP = progress.xp;
+  preGameCoins = progress.coins;
+  preGameCorrect = progress.correct;
+  preGameFeatures = JSON.parse(JSON.stringify(progress.features||{}));
+  preGamePassport = [...(progress.passportStamps||[])];
+  preGamePassportBonusLevel = progress.passportBonusLevel||0;
+  const mr = document.getElementById("mistakesReview");
+  if(mr) mr.classList.add("hidden");
+  _origStartGame();
+  updateGameTopbar();
+};
+
+// loadQuestion — rebuild dots with history
+const _origLoadQuestion = loadQuestion;
+loadQuestion = function() {
+  buildQuestionDots();
+  _origLoadQuestion();
+};
+
+// checkAnswer — record result, color dot, XP toast, log mistakes
+const _origCheckAnswer = checkAnswer;
+checkAnswer = function(btn, sel, correct, expert) {
+  expert = expert === true;
+  const ok = expert ? normalize(sel) === normalize(correct) : sel === correct;
+  // record result before building dots
+  questionResults[qIndex] = ok;
+  const dot = document.getElementById("qDot" + qIndex);
+  if (dot) {
+    dot.classList.remove("current");
+    dot.classList.add(ok ? "done-ok" : "done-bad");
+  }
+  if (ok) showXPToast();
+  else {
+    const q = questions[qIndex];
+    if (q) gameMistakeLog.push({ country: v(q,"name"), mode: activeMode, correct: correct, selected: sel });
+  }
+  _origCheckAnswer(btn, sel, correct, expert);
+  updateGameTopbar();
+};
+
+function showXPToast() {
+  const t = document.createElement("div");
+  t.className = "xpToast";
+  t.textContent = "+6 XP ⭐";
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+// finishGame — confetti + show mistakes review
+const _origFinishGame = finishGame;
+finishGame = function(back) {
+  if (!back && score >= 7) launchConfetti();
+  if (!back && gameMistakeLog.length > 0) setTimeout(showMistakesReview, 150);
+  if (!back && gameMistakeLog.length === 0) {
+    const mr = document.getElementById("mistakesReview");
+    if(mr) mr.classList.add("hidden");
+  }
+  _origFinishGame(back);
+};
+
+function showMistakesReview() {
+  const box = document.getElementById("mistakesReview");
+  if (!box || gameMistakeLog.length === 0) return;
+  const modeLabels = {flagToCountry:"דגל→מדינה", countryToFlag:"מדינה→דגל", capital:"בירה", currency:"מטבע", language:"שפה", site:"אתר", continent:"יבשת"};
+  box.innerHTML = `<b style="color:var(--bad)">❌ הטעויות שלך (${gameMistakeLog.length}):</b><br><br>` +
+    gameMistakeLog.map(m =>
+      `<div style="border-bottom:1px solid rgba(255,255,255,.08);padding:6px 0">
+        <span style="color:var(--text)">${m.country}</span>
+        <span style="color:var(--text2);font-size:13px"> · ${modeLabels[m.mode]||m.mode}</span><br>
+        <span style="color:var(--bad)">✗ ${m.selected||"לא ענית"}</span>
+        <span style="color:var(--text2)"> → </span>
+        <span style="color:var(--good)">✓ ${m.correct}</span>
+      </div>`
+    ).join("");
+  box.classList.remove("hidden");
+}
+
+function launchConfetti() {
+  const colors = ["#3b9eff","#ffc107","#00d68f","#ff4757","#9c6fe4","#fff"];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const p = document.createElement("div");
+      p.className = "particle";
+      p.style.cssText = `left:${Math.random()*100}vw;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?"50%":"3px"};animation-duration:${2+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 3500);
+    }, i * 30);
+  }
+}
+
+// Collection: filter by continent from map click
+function filterCollectionByContinent(continent) {
+  showScreen("collectionScreen");
+  const contMap = {Europe:"אירופה",Asia:"אסיה",Africa:"אפריקה",Americas:"אמריקה",Oceania:"אוקיאניה"};
+  const search = document.getElementById("countrySearch");
+  if (search) { search.value = contMap[continent] || ""; }
+  renderCollection();
+}
+
+// Collection sort state
+let collectionSort = "all";
+function setCollectionSort(s) {
+  collectionSort = s;
+  ["sortAll","sortDone","sortPending"].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.opacity = "0.5";
+  });
+  const active = document.getElementById("sort" + s.charAt(0).toUpperCase() + s.slice(1));
+  if(active) active.style.opacity = "1";
+  renderCollection();
+}
+
+// Collection: improved render with search + sort
+const _origRenderCollection = renderCollection;
+renderCollection = function() {
+  document.getElementById("collectedCount").textContent = `${completedCountries().length}/${countries.length} מדינות נאספו לגמרי`;
+  const search = ((document.getElementById("countrySearch")||{}).value||"").trim();
+  const box = document.getElementById("collectionBox");
+  box.innerHTML = "";
+  const order = ["continent","capital","language","currency","site","flag"];
+  let list = countries;
+  if (search) list = list.filter(c => v(c,"name").includes(search) || (c.name_en||"").toLowerCase().includes(search.toLowerCase()));
+  if (collectionSort === "done") list = list.filter(c => isCountryComplete(c.code));
+  if (collectionSort === "pending") list = list.filter(c => !isCountryComplete(c.code));
+  if (!list.length) { box.innerHTML = '<div class="panel" style="color:var(--text2)">לא נמצאו מדינות</div>'; return; }
+  list.forEach(c => {
+    const f = progress.features[c.code]||{}, got = isCountryComplete(c.code);
+    const done = order.filter(x=>f[x]).length;
+    box.innerHTML += `<div class="card ${got?"":"locked"} countryCard">
+      <h3>${v(c,"name")}</h3>
+      <div style="margin:6px 0">${order.map(x=>`<span class="feature ${x} ${f[x]?"done":""}">${featureNames[x]}</span>`).join("")}</div>
+      <p class="small">${got?"✅ הושלמה":`${done}/6 הושלמו`}</p>
+    </div>`;
+  });
+};
+
+// Reset state when entering screens
+const _origShowScreen = showScreen;
+showScreen = function(id) {
+  // Reset shop-from-game flag if navigating anywhere except shop/game
+  if(id !== "shopScreen" && id !== "gameScreen") cameFromGameToShop = false;
+  if (id === "settingsScreen") {
+    _avatarOpen = false;
+    const panel = document.getElementById("avatarPanel");
+    const arrow = document.getElementById("avatarArrow");
+    if(panel) panel.style.maxHeight = "0";
+    if(arrow) arrow.style.transform = "";
+    const prev = document.getElementById("currentAvatarPreview");
+    if(prev && progress) prev.textContent = progress.avatar || "🧭";
+  }
+  if (id === "collectionScreen") {
+    const s = document.getElementById("countrySearch");
+    if (s && !s._keepFilter) s.value = "";
+    if (s) s._keepFilter = false;
+    if (!collectionSort) collectionSort = "all";
+    setTimeout(()=>setCollectionSort(collectionSort),0);
+  }
+  _origShowScreen(id);
+};
+
+// Passport: add real images from Wikimedia
+const _origRenderPassport = renderPassport;
+renderPassport = function() {
+  _origRenderPassport();
+  // Replace placeholder divs with actual images
+  document.querySelectorAll("#passportBox .card.stamp").forEach(card => {
+    const h3 = card.querySelector("h3");
+    if (!h3) return;
+    const siteName = h3.textContent;
+    const country = countries.find(c => v(c,"site") === siteName);
+    if (!country) return;
+    const placeholder = card.querySelector(".site-placeholder");
+    if (placeholder) {
+      const img = document.createElement("img");
+      img.className = "passport-img";
+      img.alt = siteName;
+      img.style.cssText = "width:100%;height:130px;object-fit:cover;border-radius:12px;border:1px solid rgba(255,255,255,.15)";
+      img.onerror = function(){ this.style.display="none"; };
+      // Use flagcdn as fallback + country flag as passport stamp image
+      img.src = `https://flagcdn.com/w320/${country.code.toLowerCase()}.png`;
+      img.style.objectFit = "contain";
+      img.style.background = "rgba(255,255,255,.05)";
+      placeholder.replaceWith(img);
+    }
+  });
+};
+
+// Lock countdown: live update every second
+setInterval(function() {
+  document.querySelectorAll(".lockCountdown").forEach(el => {
+    const until = parseInt(el.dataset.until||"0");
+    const rem = until - Date.now();
+    if (rem <= 0) { el.textContent = ""; return; }
+    const m = Math.floor(rem/60000), s = Math.floor((rem%60000)/1000);
+    el.textContent = `נעול עוד ${m}:${String(s).padStart(2,"0")}`;
+  });
+}, 1000);
+
+// Inject live countdown into locked games
+const _origRenderGames = renderGames;
+renderGames = function() {
+  _origRenderGames();
+  games.forEach(g => {
+    const lock = getLock(g.id);
+    if (lock && lock.lockedUntil) {
+      const box = document.getElementById("gamesBox");
+      if (!box) return;
+      const cards = box.querySelectorAll(".game-card");
+      cards.forEach(card => {
+        if (card.querySelector("h3") && card.querySelector("h3").textContent === g.title) {
+          let span = card.querySelector(".lockCountdown");
+          if (!span) {
+            span = document.createElement("span");
+            span.className = "lockCountdown danger";
+            span.style.display = "block";
+            span.style.fontSize = "13px";
+            span.dataset.until = lock.lockedUntil;
+            card.appendChild(span);
+          }
+        }
+      });
+    }
+  });
+};
+
+// ===== END IMPROVEMENTS =====
+
+</script>
+</body>
+</html>
